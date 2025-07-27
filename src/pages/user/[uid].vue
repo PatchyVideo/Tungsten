@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
 
+setSiteTitle('个人信息')
+
 const toast = useToast()
 // 获取路由参数
 const route = useRoute()

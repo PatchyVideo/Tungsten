@@ -33,6 +33,7 @@ export const useUserStore = defineStore('user', () => {
   function logout() {
     userLogout()
     auth.value = null
+    sessionStorage.clear()
   }
 
   refetch()

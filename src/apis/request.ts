@@ -21,6 +21,8 @@ type ApiResponse<T = unknown> = SuccessResponse<T> | FailedResponse
 const API_BASE = 'https://patchyvideo.com/be'
 const HEADERS = { 'Content-Type': 'application/json' }
 
+const toast = useToast()
+
 /**
  * 发送 API 请求
  * @param endpoint API 端点
@@ -39,6 +41,7 @@ export async function request<T>(
   })
 
   if (!res.ok) {
+    toast.error('网络错误，请稍后重试。')
     throw new Error(`网络错误：${res.status}`)
   }
 
@@ -53,6 +56,8 @@ export async function request<T>(
   }
 
   if (json.status === 'ERROR') {
+    if (json.dataerr.reason === 'UNAUTHORISED_OPERATION')
+      toast.error('未授权的操作，请登录后重试。')
     throw new Error(`错误：${json.dataerr?.reason || '未知错误'}`)
   }
 

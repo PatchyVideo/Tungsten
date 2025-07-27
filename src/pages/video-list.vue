@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+setSiteTitle('视频列表')
 // ================ router ================
 const route = useRoute()
 const router = useRouter()

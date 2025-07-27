@@ -50,6 +50,11 @@ watchEffect(() => {
       NProgress.done()
   }
 })
+
+onUnmounted(() => {
+  if (NProgress.isStarted())
+    NProgress.done()
+})
 </script>
 
 <template>
