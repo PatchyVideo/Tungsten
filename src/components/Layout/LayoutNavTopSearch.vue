@@ -1,25 +1,126 @@
 <script setup lang="ts">
+import { AutocompleteResponse } from '@/apis/type/autocomplete'
+
+// =============== search content, popover ================
 const searchContent = ref('')
+const showView = ref(false)
+const searchTags = ref<AutocompleteResponse>([])
+
+// =============== query ================
+const { result, loading } = useQuery<Query>(
+  gql`query{
+      getPopularTags(para:  { }) {
+        popularTags {
+          popluarity
+          tag {
+            id
+            languages {
+              lang
+              value
+            }
+          }
+        }
+      }
+    }`
+)
+// tags computed
+const popularTags = computed(() => {
+  const tags = result.value?.getPopularTags.popularTags || []
+  console.log(tags.length);
+  
+  return tags.slice()
+    .sort((a, b) => b.popluarity - a.popluarity)
+    .map(item => {
+      const chs = item.tag.languages.find(l => l.lang === 'CHS')
+      const eng = item.tag.languages.find(l => l.lang === 'ENG')
+      const jpn = item.tag.languages.find(l => l.lang === 'JPN')
+      const other = item.tag.languages[0]
+      return {
+        id: item.tag.id,
+        value: chs?.value || eng?.value || jpn?.value || other?.value || '未知标签',
+        popularity: item.popluarity
+      }
+    })
+})
+const selectTag = (tagValue: string) => {
+  searchContent.value = tagValue
+  showView.value = false
+}
+
+// ================ popover view change ================
+const popover = ref<HTMLElement | null>(null)
+const stopClickOutsideWatcher = onClickOutside(popover, () => {
+  showView.value = false
+})
+
+// ================ input event ================
+const debouncedSearch = useDebounceFn(() => {
+  searchTags.value = []
+  if (!searchContent.value.trim()) return
+  searchAutocomplete(searchContent.value).then(res => {
+    searchTags.value = res
+  })
+}, 800)
+
+// ================ vue  ================
+onBeforeUnmount(()=>{
+  stopClickOutsideWatcher?.()
+})
 </script>
 
 <template>
-  <div class="h-7 w-full flex items-center justify-start rounded-lg bg-white ring ring-2 ring-purple-300 md:h-9 dark:bg-dark-3 dark:ring-dark dark:focus-within:ring-indigo-600">
-    <input
-      v-model="searchContent"
-      type="text"
-      class="h-full flex-1 border-transparent rounded-lg px-2 outline-none dark:bg-dark-3"
-      placeholder="搜索你想看的内容"
-    >
     <div
-      v-show="searchContent"
-      class="i-mdi:close-circle-outline mr-2 inline-block flex-shrink-0 text-gray-500"
-      @click="searchContent = ''"
-    />
-    <button
-      class="hidden h-full border-transparent rounded-r-lg bg-purple-200 px-3 text-purple-900 md:inline dark:bg-dark-200 dark:text-warmGray-100"
-      v-text="'搜索'"
-    />
-  </div>
+      ref="popover"
+      class="h-7 w-full flex items-center justify-start rounded-lg bg-white ring ring-1 ring-purple-300 md:h-9 dark:bg-dark-3 dark:ring-dark dark:focus-within:ring-indigo-600">
+      <input 
+        class="h-full flex-1 border-transparent rounded-lg px-2 outline-none dark:bg-dark-3 dark:text-white"
+        v-model="searchContent" type="text" placeholder="搜索你想看的内容" @focus="showView = true" @input="debouncedSearch"/>
+      <div class="i-mdi:close-circle-outline mr-2 inline-block flex-shrink-0 text-gray-500" v-show="searchContent" @click="searchContent = ''" />
+      <button
+        class="hidden h-full border-transparent rounded-r-lg bg-purple-200 px-3 text-purple-900 md:inline dark:bg-dark-200 dark:text-warmGray-100"
+        v-text="'搜索'" />
+
+      
+      <transition name="fade">
+        <div class="absolute top-11 left-0 w-full bg-white dark:bg-dark-3 rounded-lg z-10 ring ring-1 ring-purple-300 dark:ring-indigo-600/40" v-show="showView">
+          <div v-if="loading" class="text-gray-500 p-2">少女祈祷中...</div>
+          <div v-else-if="searchTags.length > 0 && searchContent" class="p-2">
+            <div
+              v-for="tag in searchTags"
+              :key="tag.id"
+              class="cursor-pointer p-1 hover:bg-gray-100 dark:hover:bg-dark-2 flex justify-between rounded"
+              @click="selectTag(tag.keyword)">
+              <!-- {{ tag.value }} (热度: {{ tag.popularity }}) -->
+                <div >
+                  <div>{{ tag.keyword }}</div>
+                  <div class="text-gray-500">{{ tag.langs.sort((a, b) => b.l - a.l)[0].w }}</div>
+                </div>
+                <div class="text-gray-500">热度: {{ tag.cnt }}</div>
+            </div>
+          </div>
+          
+          <div v-else-if="popularTags.length === 0" class="text-gray-500 p-2">暂无热门标签</div>
+          <div v-else class="p-2">
+            <div
+              v-for="tag in popularTags"
+              :key="tag.id"
+              class="cursor-pointer p-1 hover:bg-gray-100 dark:hover:bg-dark-2 flex justify-between rounded"
+              @click="selectTag(tag.value)">
+              <!-- {{ tag.value }} (热度: {{ tag.popularity }}) -->
+                <div>{{ tag.value }}</div>
+                <div class="text-gray-500">热度: {{ tag.popularity }}</div>
+            </div>
+          </div>
+        </div>
+      </transition>
+    </div>
 </template>
 
-<style lang="postcss" scoped></style>
+<style lang="postcss" scoped>
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.2s ease;
+}
+.fade-enter-from, .fade-leave-to {
+  opacity: 0;
+}
+</style>
