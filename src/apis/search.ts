@@ -1,7 +1,7 @@
 import type { AutocompleteResponse } from './type/autocomplete'
 
 export function searchAutocomplete2(query: string) {
-  return request<AutocompleteResponse>('/autocomplete/ql', { q: query }, 'GET', true)
+  return request<AutocompleteResponse>('/autocomplete/ql', { q: query })
 }
 
 export async function searchAutocomplete(query: string): Promise<AutocompleteResponse> {

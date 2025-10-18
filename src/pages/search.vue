@@ -1,112 +1,67 @@
 <script lang="ts" setup>
 import { useRouteQuery } from '@vueuse/router'
 
+type OrderType = 'latest' | 'oldest' | 'video_latest' | 'video_oldest' | 'last_modified'
+
 setSiteTitle('搜索')
 
-const limit = useRouteQuery('limit', 20)
-const page = useRouteQuery<number, number>('page', 1)
-const offset = computed(() => (page.value - 1) * limit.value)
-const order = ref<'latest' | 'oldest' | 'video_latest' | 'video_oldest' | 'last_modified'>('latest')
-const qtype = ref<'tag' | 'text'>('tag')
-const q = useRouteQuery('q', '')
+const currentTab = useRouteQuery<'video' | 'playlist'>('c', 'video')
+const currentTabList: { label: string, value: 'video' | 'playlist' }[] = [
+  { label: '视频', value: 'video' },
+  { label: '播放列表', value: 'playlist' },
+]
 
-function getQueryVariables() {
-  return {
-    offset: offset.value,
-    limit: limit.value,
-    query: q.value,
-    qtype: qtype.value,
-    order: order.value,
-  }
-}
-
-// =============== Query ===============
-const { load, loading, result } = useLazyQuery<Query>(gql`
-  query ($offset: Int!, $limit: Int!, $query: String!, $qtype: String, $order: String!) {
-    listVideo(para: {
-      offset: $offset
-      limit: $limit
-      query: $query
-      qtype: $qtype
-      order: $order
-    }) {
-      count
-      pageCount
-      videos {
-        id
-        item {
-          title
-          coverImage
-          partName
-          url
-        }
-        clearence
-        meta {
-          createdAt
-        }
-      }
-    }
-  }
-`, getQueryVariables(), {
-  fetchPolicy: 'network-only',
-  notifyOnNetworkStatusChange: true,
+const order = useRouteQuery<OrderType>('o', 'last_modified')
+const orderSwitch = [
+  { value: 'last_modified', name: '最新修改' },
+  { value: 'video_oldest', name: '时间倒序' },
+]
+const orderSelect = ref(orderSwitch[0])
+watch(orderSelect, (newVal) => {
+  order.value = newVal.value as OrderType
 })
 
-function fetchVideos() {
-  load(null, getQueryVariables())
-}
-
-function updatePage(pageNum: number) {
-  page.value = pageNum
-  backTop()
-  fetchVideos()
-}
-
-fetchVideos()
-
-/** videolist */
-const videos = computed<null[] | globalThis.schema.Video[]>(() => result.value?.listVideo.videos ?? Array.from<null>({ length: limit.value }).fill(null))
-
-// ================ loading event ================
-watch(loading, () => {
-  if (loading.value) {
-    if (!NProgress.isStarted())
-      NProgress.start()
-  }
-  else {
-    if (NProgress.isStarted())
-      NProgress.done()
-  }
-})
-watch(q, () => {
-  page.value = 1
-  fetchVideos()
-})
+// const site = useRouteQuery<number>('s', 0)
+// const siteList: { label: string, value: string }[] = [
+//   { label: '全部站点', value: '' },
+//   { label: '国内网站', value: '' },
+//   { label: '国外网站', value: '' },
+// ]
+const siteSwitch = [
+  { value: '', name: '全部站点' },
+  { value: 'last_modified', name: '国内网站' },
+  { value: 'video_oldest', name: '国外网站' },
+]
+const siteSelect = ref(siteSwitch[0])
+// watch(siteSelect, (newVal) => {
+//   // site.value = siteSwitch.findIndex(item => item.value === newVal.value)
+// })
 </script>
 
 <template>
   <div class="mx-auto max-w-7xl p-t-10 dark:text-gray-400">
-    <div v-if="!loading" class="text-sm text-gray-500">
-      共 {{ result?.listVideo.count }} 个视频
+    <!-- 切换 -->
+    <div>
+      <div class="flex flex-1 flex-wrap items-center gap-2">
+        <div
+          v-for="item in currentTabList" :key="item.value"
+          :class="[currentTab === item.value ? 'bg-purple-400:70 dark:bg-purple-700:60 text-purple-8 dark:text-purple ' : '']"
+          class="flex cursor-pointer select-none items-center gap-2 rounded-lg px-2 py-1 transition duration-300 ease-in-out"
+          @click="currentTab = item.value"
+        >
+          {{ item.label }}
+        </div>
+      </div>
     </div>
-    <div v-if="loading">
-      少女祈祷中...
+    <!-- 排序 -->
+    <div class="m-y-4 flex gap-4">
+      <Select v-model:selected-op="orderSelect" :ops="orderSwitch" />
+      <Select v-if="currentTab === 'video'" v-model:selected-op="siteSelect" :ops="siteSwitch" />
     </div>
-    <div class="flex flex-wrap justify-center -mx-2 md:justify-start">
-      <VideoCard
-        v-for="(video, index) in videos"
-        :key="video ? video.id : index"
-        :min-width="0"
-        :video="video"
-        class="m-2 w-[calc(50%-1rem)] md:w-[calc(20%-1rem)]"
-      />
-    </div>
-
-    <Pagination
-      :current-page="page"
-      :total="Math.ceil((result?.listVideo.count || 0) / limit)"
-      @update-current-page="updatePage"
-    />
+    <keep-alive>
+      <VideoList v-if="currentTab === 'video'" />
+      <PlaylistList v-else />
+    </keep-alive>
   </div>
 </template>
 

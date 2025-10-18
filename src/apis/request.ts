@@ -57,7 +57,7 @@ export async function request<T>(
 
   if (json.status === 'ERROR') {
     if (json.dataerr.reason === 'UNAUTHORISED_OPERATION')
-      toast.error('未授权的操作，请登录后重试。')
+      throw new Error('未授权操作，请重新登录。')
     throw new Error(`错误：${json.dataerr?.reason || '未知错误'}`)
   }
 
