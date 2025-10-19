@@ -1,20 +1,29 @@
 <script setup lang="ts">
 import { useRouteQuery } from '@vueuse/router'
 
+const { site } = defineProps<{
+  site: number
+}>()
+
 type OrderType = 'latest' | 'oldest' | 'video_latest' | 'video_oldest' | 'last_modified'
 
 const limit = useRouteQuery('limit', 20, { transform: Number })
 const page = useRouteQuery<number, number>('page', 1, { transform: Number })
-const offset = computed(() => (page.value - 1) * limit.value)
 const order = useRouteQuery<OrderType>('o', 'last_modified')
 const qtype = ref<'tag' | 'text'>('tag')
 const q = useRouteQuery('q', '')
 
 function getQueryVariables() {
+  const siteList = [
+    '', // 全部站点
+    ' ANY(site:bili site:acfun site:zcool)', // 国内网站
+    ' ANY(site:nico site:ytb site:twitter site:ipfs)', // 国外网站
+  ]
+
   return {
-    offset: offset.value,
+    offset: (page.value - 1) * limit.value,
     limit: limit.value,
-    query: q.value,
+    query: q.value + siteList[site],
     qtype: qtype.value,
     order: order.value,
   }
@@ -79,7 +88,7 @@ watch(loading, () => {
   }
 })
 // ================ watch query change ================
-watch([q, order], () => {
+watch([q, order, () => site], () => {
   page.value = 1
   fetchVideos()
 })

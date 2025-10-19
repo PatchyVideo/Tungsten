@@ -5,12 +5,14 @@ type OrderType = 'latest' | 'oldest' | 'video_latest' | 'video_oldest' | 'last_m
 
 setSiteTitle('搜索')
 
+// ============= current =============
 const currentTab = useRouteQuery<'video' | 'playlist'>('c', 'video')
 const currentTabList: { label: string, value: 'video' | 'playlist' }[] = [
   { label: '视频', value: 'video' },
   { label: '播放列表', value: 'playlist' },
 ]
 
+// ============= order =============
 const order = useRouteQuery<OrderType>('o', 'last_modified')
 const orderSwitch = [
   { value: 'last_modified', name: '最新修改' },
@@ -21,21 +23,22 @@ watch(orderSelect, (newVal) => {
   order.value = newVal.value as OrderType
 })
 
-// const site = useRouteQuery<number>('s', 0)
+// ============= site =============
+const site = useRouteQuery<number>('s', 0, { transform: Number })
 // const siteList: { label: string, value: string }[] = [
 //   { label: '全部站点', value: '' },
 //   { label: '国内网站', value: '' },
 //   { label: '国外网站', value: '' },
 // ]
 const siteSwitch = [
-  { value: '', name: '全部站点' },
-  { value: 'last_modified', name: '国内网站' },
-  { value: 'video_oldest', name: '国外网站' },
+  { value: 0, name: '全部站点' },
+  { value: 1, name: '国内网站' },
+  { value: 2, name: '国外网站' },
 ]
-const siteSelect = ref(siteSwitch[0])
-// watch(siteSelect, (newVal) => {
-//   // site.value = siteSwitch.findIndex(item => item.value === newVal.value)
-// })
+const siteSelect = ref(siteSwitch[site.value])
+watch(siteSelect, (newVal) => {
+  site.value = newVal.value
+})
 </script>
 
 <template>
@@ -59,7 +62,7 @@ const siteSelect = ref(siteSwitch[0])
       <Select v-if="currentTab === 'video'" v-model:selected-op="siteSelect" :ops="siteSwitch" />
     </div>
     <keep-alive>
-      <VideoList v-if="currentTab === 'video'" />
+      <VideoList v-if="currentTab === 'video'" :site="site" />
       <PlaylistList v-else />
     </keep-alive>
   </div>
