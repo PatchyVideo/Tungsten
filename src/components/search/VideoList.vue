@@ -1,9 +1,7 @@
 <script setup lang="ts">
 import { useRouteQuery } from '@vueuse/router'
 
-const { site } = defineProps<{
-  site: number
-}>()
+const { site } = defineProps<{ site: number }>()
 
 type OrderType = 'latest' | 'oldest' | 'video_latest' | 'video_oldest' | 'last_modified'
 
@@ -91,6 +89,9 @@ watch(loading, () => {
 watch([q, order, () => site], () => {
   page.value = 1
   fetchVideos()
+})
+watch(page, () => {
+  updatePage(page.value)
 })
 </script>
 

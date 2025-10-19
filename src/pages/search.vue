@@ -5,12 +5,17 @@ type OrderType = 'latest' | 'oldest' | 'video_latest' | 'video_oldest' | 'last_m
 
 setSiteTitle('搜索')
 
+const page = useRouteQuery<number>('page', 1, { transform: Number })
+
 // ============= current =============
 const currentTab = useRouteQuery<'video' | 'playlist'>('c', 'video')
 const currentTabList: { label: string, value: 'video' | 'playlist' }[] = [
   { label: '视频', value: 'video' },
   { label: '播放列表', value: 'playlist' },
 ]
+watch(currentTab, () => {
+  page.value = 1
+})
 
 // ============= order =============
 const order = useRouteQuery<OrderType>('o', 'last_modified')

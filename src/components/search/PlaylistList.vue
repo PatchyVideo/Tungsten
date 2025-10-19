@@ -84,6 +84,9 @@ watch([q, order], () => {
   page.value = 1
   fetchVideos()
 })
+watch(page, () => {
+  updatePage(page.value)
+})
 
 const playlistCount = computed(() => result.value?.listPlaylist.count || 0)
 const playlistResult = computed<null[] | globalThis.schema.Playlist[]>(() => result.value?.listPlaylist.playlists || Array.from<null>({ length: limit.value }).fill(null))
