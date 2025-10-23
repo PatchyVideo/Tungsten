@@ -59,7 +59,7 @@ onkeydown = (e: KeyboardEvent) => {
   if (!showView.value)
     return
 
-  if (e.key === 'ArrowDown') {
+  if (e.key === 'ArrowDown' || e.key === 'Tab') {
     e.preventDefault()
     if (keySelecting.value < (searchTags.value.length > 0 ? searchTags.value.length - 1 : popularTags.value.length - 1))
       keySelecting.value += 1
@@ -85,15 +85,13 @@ onkeydown = (e: KeyboardEvent) => {
 
   if (e.key === 'Enter') {
     e.preventDefault()
-    if (keySelecting.value >= 0) {
-      const selectedTag = (searchTags.value.length > 0
-        ? searchTags.value[keySelecting.value].keyword
-        : popularTags.value[keySelecting.value].value)
-      searchContent.value = selectedTag
-      showView.value = false
-      toSearch()
-    }
+    showView.value = false
+    toSearch()
     keySelecting.value = -1
+    const el = e.target
+    if (el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement) {
+      el.blur()
+    }
   }
 }
 
@@ -138,7 +136,7 @@ onBeforeUnmount(() => {
   >
     <input
       v-model="searchContent" class="h-full flex-1 border-transparent rounded-lg px-2 outline-none dark:bg-dark-3 dark:text-white"
-      type="text" placeholder="搜索你想看的内容" @keydown.enter="(showView = false, toSearch())" @focus="showView = true" @input="debouncedSearch"
+      type="text" placeholder="搜索你想看的内容" @focus="showView = true" @input="debouncedSearch"
     >
     <div v-show="searchContent" class="i-mdi:close-circle-outline mr-2 inline-block flex-shrink-0 text-gray-500" @click="searchContent = ''" />
     <button
