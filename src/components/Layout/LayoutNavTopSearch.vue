@@ -53,6 +53,50 @@ const stopClickOutsideWatcher = onClickOutside(popover, () => {
   showView.value = false
 })
 
+// ================ Key select ================
+const keySelecting = ref(-1)
+onkeydown = (e: KeyboardEvent) => {
+  if (!showView.value)
+    return
+
+  if (e.key === 'ArrowDown') {
+    e.preventDefault()
+    if (keySelecting.value < (searchTags.value.length > 0 ? searchTags.value.length - 1 : popularTags.value.length - 1))
+      keySelecting.value += 1
+    else
+      keySelecting.value = 0
+
+    searchContent.value = (searchTags.value.length > 0
+      ? searchTags.value[keySelecting.value].keyword
+      : popularTags.value[keySelecting.value].value)
+  }
+
+  if (e.key === 'ArrowUp') {
+    e.preventDefault()
+    if (keySelecting.value > 0)
+      keySelecting.value -= 1
+    else
+      keySelecting.value = (searchTags.value.length > 0 ? searchTags.value.length - 1 : popularTags.value.length - 1)
+
+    searchContent.value = (searchTags.value.length > 0
+      ? searchTags.value[keySelecting.value].keyword
+      : popularTags.value[keySelecting.value].value)
+  }
+
+  if (e.key === 'Enter') {
+    e.preventDefault()
+    if (keySelecting.value >= 0) {
+      const selectedTag = (searchTags.value.length > 0
+        ? searchTags.value[keySelecting.value].keyword
+        : popularTags.value[keySelecting.value].value)
+      searchContent.value = selectedTag
+      showView.value = false
+      toSearch()
+    }
+    keySelecting.value = -1
+  }
+}
+
 // ================ input event ================
 const debouncedSearch = useDebounceFn(() => {
   searchTags.value = []
@@ -109,9 +153,10 @@ onBeforeUnmount(() => {
         </div>
         <div v-else-if="searchTags.length > 0 && searchContent" class="p-2">
           <div
-            v-for="tag in searchTags"
+            v-for="(tag, index) in searchTags"
             :key="tag.id"
             class="flex cursor-pointer justify-between rounded p-1 hover:bg-gray-100 dark:hover:bg-dark-2"
+            :class="{ 'bg-purple-100 dark:bg-dark-2': keySelecting === index }"
             @click="selectTag(tag.keyword)"
           >
             <!-- {{ tag.value }} (热度: {{ tag.popularity }}) -->
@@ -132,9 +177,10 @@ onBeforeUnmount(() => {
         </div>
         <div v-else class="p-2">
           <div
-            v-for="tag in popularTags"
+            v-for="(tag, index) in popularTags"
             :key="tag.id"
             class="flex cursor-pointer justify-between rounded p-1 hover:bg-gray-100 dark:hover:bg-dark-2"
+            :class="{ 'bg-purple-100 dark:bg-dark-2': keySelecting === index }"
             @click="selectTag(tag.value)"
           >
             <!-- {{ tag.value }} (热度: {{ tag.popularity }}) -->
