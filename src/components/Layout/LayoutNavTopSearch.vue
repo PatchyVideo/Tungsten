@@ -2,9 +2,14 @@
 import type { AutocompleteResponse } from '@/apis/type/autocomplete'
 
 // =============== search content, popover ================
+/** 搜索内容 */
 const searchContent = ref('')
+/** 使用光标选择标签 */
+const activeTag = ref('')
+/** 是否显示 */
 const showView = ref(false)
-const searchTags = ref<AutocompleteResponse>([])
+/** 显示搜索标签推荐列表 */
+const suggestedSearchTerms = ref<AutocompleteResponse>([])
 
 // =============== query ================
 const { result, loading } = useQuery<Query>(
@@ -23,7 +28,7 @@ const { result, loading } = useQuery<Query>(
       }
     }`,
 )
-// tags computed
+/** 热门标签 */
 const popularTags = computed(() => {
   const tags = result.value?.getPopularTags.popularTags || []
 
@@ -42,7 +47,7 @@ const popularTags = computed(() => {
     })
 })
 function selectTag(tagValue: string) {
-  searchContent.value = tagValue
+  activeTag.value = tagValue
   showView.value = false
   toSearch()
 }
@@ -55,55 +60,107 @@ const stopClickOutsideWatcher = onClickOutside(popover, () => {
 
 // ================ Key select ================
 const keySelecting = ref(-1)
-onkeydown = (e: KeyboardEvent) => {
+/** 鼠标位置 */
+const cursorPos = ref(0)
+/** 判断是否为Input元素 */
+function isInputElement(el: EventTarget | null): el is HTMLInputElement {
+  return el instanceof HTMLInputElement
+}
+/** 搜索自动补全防抖 */
+const debouncedSearch = useDebounceFn(() => {
+  if (!activeTag.value.trim())
+    return
+  searchAutocomplete(activeTag.value).then((res) => {
+    suggestedSearchTerms.value = res
+  })
+}, 200)
+/**
+ * 移动循环索引
+ * @param current 要修改的值
+ * @param delta 移动方向
+ * @param length 总长度
+ */
+function moveCyclicIndex(current: number, delta: number, length: number): number {
+  if (length <= 0)
+    return 0
+  const newIndex = (current + delta + length) % length
+  return newIndex
+}
+
+onkeyup = (e: KeyboardEvent) => {
   if (!showView.value)
     return
 
-  if (e.key === 'ArrowDown' || e.key === 'Tab') {
-    e.preventDefault()
-    if (keySelecting.value < (searchTags.value.length > 0 ? searchTags.value.length - 1 : popularTags.value.length - 1))
-      keySelecting.value += 1
-    else
-      keySelecting.value = 0
+  const el = e.target
+  if (!isInputElement(el))
+    return
 
-    searchContent.value = (searchTags.value.length > 0
-      ? searchTags.value[keySelecting.value].keyword
-      : popularTags.value[keySelecting.value].value)
+  // Esc取消选择
+  if (e.key === 'Escape') {
+    showView.value = false
+    keySelecting.value = -1
+    el.blur()
+    return
   }
 
-  if (e.key === 'ArrowUp') {
-    e.preventDefault()
-    if (keySelecting.value > 0)
-      keySelecting.value -= 1
-    else
-      keySelecting.value = (searchTags.value.length > 0 ? searchTags.value.length - 1 : popularTags.value.length - 1)
-
-    searchContent.value = (searchTags.value.length > 0
-      ? searchTags.value[keySelecting.value].keyword
-      : popularTags.value[keySelecting.value].value)
-  }
-
+  // 回车选择
   if (e.key === 'Enter') {
     e.preventDefault()
     showView.value = false
     toSearch()
     keySelecting.value = -1
-    const el = e.target
-    if (el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement) {
-      el.blur()
-    }
+    el.blur()
+    return
+  }
+
+  if (e.key === 'Process' || e.key === 'ArrowLeft' || e.key === 'ArrowRight' || e.key === 'Backspace') {
+    cursorPos.value = el.selectionStart ?? 0
+    const before = searchContent.value.substring(0, cursorPos.value)
+    const parts = before.split(/\s+/)
+    activeTag.value = parts[parts.length - 1] || ''
+
+    debouncedSearch()
+  }
+
+  const items = suggestedSearchTerms.value.length > 0 ? suggestedSearchTerms.value : popularTags.value
+  const length = items.length
+
+  const nextIndex = () => moveCyclicIndex(keySelecting.value, 1, length)
+  const prevIndex = () => moveCyclicIndex(keySelecting.value, -1, length)
+
+  // 上下键tab键选择
+  if (e.key === 'ArrowDown' || e.key === 'Tab') {
+    e.preventDefault()
+    const i = keySelecting.value = nextIndex()
+    activeTag.value = 'keyword' in items[i] ? items[i].keyword : items[i].value
+    return
+  }
+
+  // 上下键选择
+  if (e.key === 'ArrowUp') {
+    e.preventDefault()
+    const i = keySelecting.value = prevIndex()
+    activeTag.value = 'keyword' in items[i] ? items[i].keyword : items[i].value
   }
 }
 
-// ================ input event ================
-const debouncedSearch = useDebounceFn(() => {
-  searchTags.value = []
-  if (!searchContent.value.trim())
+onmouseup = (e: MouseEvent) => {
+  if (!showView.value)
     return
-  searchAutocomplete(searchContent.value).then((res) => {
-    searchTags.value = res
-  })
-}, 800)
+
+  const el = e.target
+  if (!isInputElement(el))
+    return
+
+  cursorPos.value = el.selectionStart ?? 0
+  const before = searchContent.value.substring(0, cursorPos.value)
+  const parts = before.split(/\s+/)
+  activeTag.value = parts[parts.length - 1] || ''
+
+  debouncedSearch()
+}
+
+// ================ input event ================
 
 const router = useRouter()
 const route = useRoute()
@@ -135,9 +192,12 @@ onBeforeUnmount(() => {
     class="h-9 w-full flex items-center justify-start rounded-lg bg-white ring ring-1 ring-purple-300 dark:bg-dark-3 dark:ring-dark dark:focus-within:ring-indigo-600"
   >
     <input
-      v-model="searchContent" class="h-full flex-1 border-transparent rounded-lg px-2 outline-none dark:bg-dark-3 dark:text-white"
-      type="text" placeholder="搜索你想看的内容" @focus="showView = true" @input="debouncedSearch"
+      v-model="searchContent"
+      class="h-full flex-1 border-transparent rounded-lg px-2 outline-none dark:bg-dark-3 dark:text-white"
+      type="text" placeholder="搜索你想看的内容"
+      @focus="showView = true"
     >
+    <div>{{ activeTag }}</div>
     <div v-show="searchContent" class="i-mdi:close-circle-outline mr-2 inline-block flex-shrink-0 text-gray-500" @click="searchContent = ''" />
     <button
       class="hidden h-full cursor-pointer border-transparent rounded-r-lg bg-purple-200 px-3 text-purple-900 md:inline dark:bg-dark-200 dark:text-warmGray-100"
@@ -149,9 +209,9 @@ onBeforeUnmount(() => {
         <div v-if="loading" class="p-2 text-gray-500">
           少女祈祷中...
         </div>
-        <div v-else-if="searchTags.length > 0 && searchContent" class="p-2">
+        <div v-else-if="suggestedSearchTerms.length > 0 && searchContent" class="p-2">
           <div
-            v-for="(tag, index) in searchTags"
+            v-for="(tag, index) in suggestedSearchTerms"
             :key="tag.id"
             class="flex cursor-pointer justify-between rounded p-1 hover:bg-gray-100 dark:hover:bg-dark-2"
             :class="{ 'bg-purple-100 dark:bg-dark-2': keySelecting === index }"
