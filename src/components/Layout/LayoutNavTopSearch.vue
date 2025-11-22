@@ -30,7 +30,7 @@ const { result, loading } = useQuery<Query>(
       }
     }`,
 )
-/** 热门标签 */
+/** Computed list of popular tags, sorted by popularity and mapped for display */
 const popularTags = computed(() => {
   if (!result.value)
     return []
@@ -51,7 +51,7 @@ const popularTags = computed(() => {
       }
     })
 })
-/** 选择标签 */
+/** Selects a tag and inserts it into the search input at the current active position */
 function selectTag(tagValue: string) {
   const before = searchContent.value.substring(0, cursorPos.value)
   const after = searchContent.value.substring(cursorPos.value)
@@ -65,21 +65,18 @@ function selectTag(tagValue: string) {
 
 // ================ popover view change ================
 const popover = ref<HTMLElement | null>(null)
+/** Watcher to hide popover when clicking outside of it */
 const stopClickOutsideWatcher = onClickOutside(popover, () => {
   showView.value = false
 })
 
 // ================ Key select ================
 const keySelecting = ref(-1)
-/** 判断是否为Input元素 */
-function isInputElement(el: EventTarget | null): el is HTMLInputElement {
-  return el instanceof HTMLInputElement
-}
-/** 搜索自动补全防抖 */
+/** Debounced function to perform search autocompletion based on activeTag */
 const debouncedSearch = useDebounceFn(() => {
   const tag = activeTag.value.trim()
   if (!tag) {
-    suggestedSearchTerms.value = [] // 输入空 -> 清空结果
+    suggestedSearchTerms.value = []
     loading.value = false
     return
   }
@@ -95,10 +92,10 @@ const debouncedSearch = useDebounceFn(() => {
   })
 }, 200)
 /**
- * 移动循环索引
- * @param current 要修改的值
- * @param delta 移动方向
- * @param length 总长度
+ * Moves an index cyclically within a range (e.g., for key selection in a list)
+ * @param current current The current index
+ * @param delta delta The direction of movement (+1 for down, -1 for up)
+ * @param length length The total length of the list
  */
 function moveCyclicIndex(current: number, delta: number, length: number): number {
   if (length <= 0)
@@ -107,9 +104,46 @@ function moveCyclicIndex(current: number, delta: number, length: number): number
   return newIndex
 }
 
-/** 移除按下默认事件 */
+/**
+ * Handles changes in the input box content, updates cursor position and active tag
+ * @param el Input element
+ */
+function handleContentChange(el: HTMLInputElement) {
+  cursorPos.value = el.selectionStart ?? 0
+  const before = searchContent.value.substring(0, cursorPos.value)
+  const parts = before.split(/\s+/)
+  const lastPart = parts[parts.length - 1] || ''
+
+  if (activeTag.value === lastPart)
+    return
+
+  activeTag.value = lastPart
+
+  debouncedSearch()
+}
+// Functions using 'as HTMLInputElement' are only meant for the search input element
+function onInput(e: Event) {
+  if (!showView.value)
+    return
+  handleContentChange(e.target as HTMLInputElement)
+}
+function onCompositionEnd(e: CompositionEvent) {
+  handleContentChange(e.target as HTMLInputElement)
+}
+function onMouseUp(e: MouseEvent) {
+  if (!showView.value)
+    return
+  handleContentChange(e.target as HTMLInputElement)
+}
+
+/** Prevents default behavior */
 function keydown(e: KeyboardEvent) {
-  if (showView.value && (e.key === 'Tab' || e.key === 'ArrowDown' || e.key === 'ArrowUp')) {
+  if (
+    showView.value
+    && (e.key === 'Tab'
+      || e.key === 'ArrowDown'
+      || e.key === 'ArrowUp')
+  ) {
     e.preventDefault()
   }
 }
@@ -117,12 +151,9 @@ function keydown(e: KeyboardEvent) {
 function keyup(e: KeyboardEvent) {
   if (!showView.value)
     return
+  const el = e.target as HTMLInputElement
 
-  const el = e.target
-  if (!isInputElement(el))
-    return
-
-  // Esc取消选择
+  // close popover and reset selection
   if (e.key === 'Escape') {
     showView.value = false
     keySelecting.value = -1
@@ -130,20 +161,22 @@ function keyup(e: KeyboardEvent) {
     return
   }
 
-  if (e.key === 'Process' || e.key === 'ArrowLeft' || e.key === 'ArrowRight' || e.key === 'Backspace') {
-    cursorPos.value = el.selectionStart ?? 0
-    const before = searchContent.value.substring(0, cursorPos.value)
-    const parts = before.split(/\s+/)
-    activeTag.value = parts[parts.length - 1] || ''
-
-    debouncedSearch()
+  // change text/cursor position
+  if (
+    e.key === 'Process'
+    || e.key === 'Backspace'
+    || e.key === 'ArrowLeft'
+    || e.key === 'ArrowRight'
+  ) {
+    handleContentChange(el)
     return
   }
 
+  // Use suggestions if available, otherwise use popular tags
   const items = suggestedSearchTerms.value.length > 0 ? suggestedSearchTerms.value : popularTags.value
   const length = items.length
 
-  // 回车选择
+  // select current highlighted item and perform search
   if (e.key === 'Enter') {
     e.preventDefault()
     showView.value = false
@@ -153,7 +186,6 @@ function keyup(e: KeyboardEvent) {
       selectTag(selectedValue)
     }
 
-    // toSearch()
     keySelecting.value = -1
     el.blur()
     return
@@ -162,7 +194,7 @@ function keyup(e: KeyboardEvent) {
   const nextIndex = () => moveCyclicIndex(keySelecting.value, 1, length)
   const prevIndex = () => moveCyclicIndex(keySelecting.value, -1, length)
 
-  // 上下键tab键选择
+  // move selection down
   if (e.key === 'ArrowDown' || e.key === 'Tab') {
     e.preventDefault()
     const i = keySelecting.value = nextIndex()
@@ -170,49 +202,25 @@ function keyup(e: KeyboardEvent) {
     return
   }
 
-  // 上下键选择
+  // move selection up
   if (e.key === 'ArrowUp') {
     e.preventDefault()
     const i = keySelecting.value = prevIndex()
     activeTag.value = 'keyword' in items[i] ? items[i].keyword : items[i].value
   }
 }
-
-function mouseup(e: MouseEvent) {
-  if (!searchContent.value)
-    return
-  if (!showView.value)
-    return
-
-  const el = e.target
-  if (!isInputElement(el))
-    return
-
-  cursorPos.value = el.selectionStart ?? 0
-  const before = searchContent.value.substring(0, cursorPos.value)
-  const parts = before.split(/\s+/)
-  activeTag.value = parts[parts.length - 1] || ''
-
-  debouncedSearch()
-}
-
 // ================ Search Event ================
 const router = useRouter()
 const route = useRoute()
 
-/** 去搜索 */
+/** Navigates to the search route with the current search content */
 function toSearch() {
   if (!searchContent.value.trim())
     return
 
-  const query: { q: string, c?: string } = {
-    q: searchContent.value,
-  }
-
+  const query: { q: string, c?: string } = { q: searchContent.value }
   const c = route.query.c?.length ? route.query.c as string : ''
-
   route.query.c ? query.c = c : delete query.c
-
   router.push({ path: '/search', query })
 }
 
@@ -231,12 +239,13 @@ onBeforeUnmount(() => {
       v-model="searchContent"
       class="h-full flex-1 border-transparent rounded-lg px-2 outline-none dark:bg-dark-3 dark:text-white"
       type="text" placeholder="搜索你想看的内容"
+      @input="onInput"
+      @compositionend="onCompositionEnd"
       @focus="showView = true"
+      @mouseup="onMouseUp"
       @keydown="keydown"
       @keyup="keyup"
-      @mouseup="mouseup"
     >
-    <div>{{ activeTag }}</div>
     <div v-show="searchContent" class="i-mdi:close-circle-outline mr-2 inline-block flex-shrink-0 text-gray-500" @click="searchContent = ''" />
     <button
       class="hidden h-full cursor-pointer border-transparent rounded-r-lg bg-purple-200 px-3 text-purple-900 md:inline dark:bg-dark-200 dark:text-warmGray-100"
@@ -256,7 +265,6 @@ onBeforeUnmount(() => {
             :class="{ 'bg-purple-100 dark:bg-dark-2': keySelecting === index }"
             @click="selectTag(tag.keyword)"
           >
-            <!-- {{ tag.value }} (热度: {{ tag.popularity }}) -->
             <div>
               <div>{{ tag.keyword }}</div>
               <div class="text-gray-500">
