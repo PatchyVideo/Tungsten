@@ -10,6 +10,8 @@ const activeTag = ref('')
 const showView = ref(false)
 /** 显示搜索标签推荐列表 */
 const suggestedSearchTerms = ref<AutocompleteResponse>([])
+/** 鼠标位置 */
+const cursorPos = ref(0)
 
 // =============== query ================
 const { result, loading } = useQuery<Query>(
@@ -30,7 +32,10 @@ const { result, loading } = useQuery<Query>(
 )
 /** 热门标签 */
 const popularTags = computed(() => {
-  const tags = result.value?.getPopularTags.popularTags || []
+  if (!result.value)
+    return []
+
+  const tags = result.value.getPopularTags.popularTags || []
 
   return tags.slice()
     .sort((a, b) => b.popluarity - a.popluarity)
@@ -46,7 +51,13 @@ const popularTags = computed(() => {
       }
     })
 })
+/** 选择标签 */
 function selectTag(tagValue: string) {
+  const before = searchContent.value.substring(0, cursorPos.value)
+  const after = searchContent.value.substring(cursorPos.value)
+  const parts = before.split(/\s+/)
+  parts[parts.length - 1] = tagValue
+  searchContent.value = parts.join(' ') + after
   activeTag.value = tagValue
   showView.value = false
   toSearch()
@@ -60,18 +71,27 @@ const stopClickOutsideWatcher = onClickOutside(popover, () => {
 
 // ================ Key select ================
 const keySelecting = ref(-1)
-/** 鼠标位置 */
-const cursorPos = ref(0)
 /** 判断是否为Input元素 */
 function isInputElement(el: EventTarget | null): el is HTMLInputElement {
   return el instanceof HTMLInputElement
 }
 /** 搜索自动补全防抖 */
 const debouncedSearch = useDebounceFn(() => {
-  if (!activeTag.value.trim())
+  const tag = activeTag.value.trim()
+  if (!tag) {
+    suggestedSearchTerms.value = [] // 输入空 -> 清空结果
+    loading.value = false
     return
+  }
+  loading.value = true
   searchAutocomplete(activeTag.value).then((res) => {
-    suggestedSearchTerms.value = res
+    suggestedSearchTerms.value = res ?? []
+  }).catch((err) => {
+    if (err.name === 'AbortError')
+      return
+    console.error(err)
+  }).finally(() => {
+    loading.value = false
   })
 }, 200)
 /**
@@ -87,7 +107,14 @@ function moveCyclicIndex(current: number, delta: number, length: number): number
   return newIndex
 }
 
-onkeyup = (e: KeyboardEvent) => {
+/** 移除按下默认事件 */
+function keydown(e: KeyboardEvent) {
+  if (showView.value && (e.key === 'Tab' || e.key === 'ArrowDown' || e.key === 'ArrowUp')) {
+    e.preventDefault()
+  }
+}
+
+function keyup(e: KeyboardEvent) {
   if (!showView.value)
     return
 
@@ -103,16 +130,6 @@ onkeyup = (e: KeyboardEvent) => {
     return
   }
 
-  // 回车选择
-  if (e.key === 'Enter') {
-    e.preventDefault()
-    showView.value = false
-    toSearch()
-    keySelecting.value = -1
-    el.blur()
-    return
-  }
-
   if (e.key === 'Process' || e.key === 'ArrowLeft' || e.key === 'ArrowRight' || e.key === 'Backspace') {
     cursorPos.value = el.selectionStart ?? 0
     const before = searchContent.value.substring(0, cursorPos.value)
@@ -120,10 +137,27 @@ onkeyup = (e: KeyboardEvent) => {
     activeTag.value = parts[parts.length - 1] || ''
 
     debouncedSearch()
+    return
   }
 
   const items = suggestedSearchTerms.value.length > 0 ? suggestedSearchTerms.value : popularTags.value
   const length = items.length
+
+  // 回车选择
+  if (e.key === 'Enter') {
+    e.preventDefault()
+    showView.value = false
+    if (keySelecting.value !== -1) {
+      const selectedItem = items[keySelecting.value]
+      const selectedValue = 'keyword' in selectedItem ? selectedItem.keyword : selectedItem.value
+      selectTag(selectedValue)
+    }
+
+    // toSearch()
+    keySelecting.value = -1
+    el.blur()
+    return
+  }
 
   const nextIndex = () => moveCyclicIndex(keySelecting.value, 1, length)
   const prevIndex = () => moveCyclicIndex(keySelecting.value, -1, length)
@@ -144,7 +178,9 @@ onkeyup = (e: KeyboardEvent) => {
   }
 }
 
-onmouseup = (e: MouseEvent) => {
+function mouseup(e: MouseEvent) {
+  if (!searchContent.value)
+    return
   if (!showView.value)
     return
 
@@ -160,11 +196,11 @@ onmouseup = (e: MouseEvent) => {
   debouncedSearch()
 }
 
-// ================ input event ================
-
+// ================ Search Event ================
 const router = useRouter()
 const route = useRoute()
 
+/** 去搜索 */
 function toSearch() {
   if (!searchContent.value.trim())
     return
@@ -196,6 +232,9 @@ onBeforeUnmount(() => {
       class="h-full flex-1 border-transparent rounded-lg px-2 outline-none dark:bg-dark-3 dark:text-white"
       type="text" placeholder="搜索你想看的内容"
       @focus="showView = true"
+      @keydown="keydown"
+      @keyup="keyup"
+      @mouseup="mouseup"
     >
     <div>{{ activeTag }}</div>
     <div v-show="searchContent" class="i-mdi:close-circle-outline mr-2 inline-block flex-shrink-0 text-gray-500" @click="searchContent = ''" />
