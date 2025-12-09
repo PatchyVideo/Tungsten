@@ -51,7 +51,7 @@ const notes = computed(() => messageStore.result.value?.listNotifications?.notes
       登录
     </RouterLink>
   </div>
-  <div v-else class="flex items-center space-x-4">
+  <div v-else class="z-49 flex items-center space-x-4">
     <!-- Massage -->
     <Popover v-if="route.path !== '/user/msg'" trigger="click" class="hidden sm:block">
       <div class="relative inline-block w-fit">

@@ -95,7 +95,7 @@ function handleGotoPage(pageNum: number = input.value) {
 
     <div class="block md:hidden">
       Go to:
-      <input v-model="input" class="h-8 w-16 border border-gray-300 rounded border-solid px-2 focus:border-purple-500 focus:outline-none" type="number" name="" @blur="() => handleGotoPage()" @keyup.enter="handleGotoPage()">
+      <input v-model="input" class="h-8 w-16 appearance-none border border-gray-300 rounded border-solid px-2 text-center dark:border-gray-600 focus:border-purple-500 dark:bg-dark-200 dark:text-author focus:outline-none" type="number" name="" @blur="() => handleGotoPage()" @keyup.enter="handleGotoPage()">
       {{ `共${total}页` }}
     </div>
 
@@ -109,3 +109,11 @@ function handleGotoPage(pageNum: number = input.value) {
     </div>
   </div>
 </template>
+
+<style>
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+</style>

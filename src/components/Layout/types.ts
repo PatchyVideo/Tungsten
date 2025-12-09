@@ -1,19 +1,17 @@
 // ====== Navigation Types ======
 import type { Component } from 'vue'
-// group
-export interface NavGroup {
-  groupName: string
-  links: NavLinkItem[]
-}
+
 // item
 export type NavLinkItem = (
   | NavLinkRouter
   | NavLinkA
   | NavLinkComponents
-    )
+  | NavGroupTitle
+)
 interface NavLinkMeta {
   name: string
   icon?: string
+  noCloose?: boolean
 }
 interface NavLinkRouter extends NavLinkMeta {
   type: 'router'
@@ -26,4 +24,7 @@ interface NavLinkA extends NavLinkMeta {
 interface NavLinkComponents extends NavLinkMeta {
   type: 'components'
   component: Component
+}
+interface NavGroupTitle extends NavLinkMeta {
+  type: 'title'
 }

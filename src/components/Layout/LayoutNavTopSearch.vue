@@ -60,7 +60,6 @@ function selectTag(tagValue: string) {
   searchContent.value = parts.join(' ') + after
   activeTag.value = tagValue
   showView.value = false
-  toSearch()
 }
 
 // ================ popover view change ================
@@ -83,6 +82,7 @@ const debouncedSearch = useDebounceFn(() => {
   loading.value = true
   searchAutocomplete(activeTag.value).then((res) => {
     suggestedSearchTerms.value = res ?? []
+    showView.value = true
   }).catch((err) => {
     if (err.name === 'AbortError')
       return
@@ -149,9 +149,13 @@ function keydown(e: KeyboardEvent) {
 }
 
 function keyup(e: KeyboardEvent) {
-  if (!showView.value)
-    return
   const el = e.target as HTMLInputElement
+
+  if (!showView.value) {
+    el.blur()
+    toSearch()
+    return
+  }
 
   // close popover and reset selection
   if (e.key === 'Escape') {
@@ -187,7 +191,7 @@ function keyup(e: KeyboardEvent) {
     }
 
     keySelecting.value = -1
-    el.blur()
+
     return
   }
 
@@ -218,6 +222,7 @@ function toSearch() {
   if (!searchContent.value.trim())
     return
 
+  showView.value = false
   const query: { q: string, c?: string } = { q: searchContent.value }
   const c = route.query.c?.length ? route.query.c as string : ''
   route.query.c ? query.c = c : delete query.c

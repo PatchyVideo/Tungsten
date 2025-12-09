@@ -25,7 +25,7 @@ watch(() => drawerOpen, (n) => {
       x: 0,
       transition: {
         // set delay to 40ms * index to ensure animation order
-        delay: 40 * index,
+        delay: 30 * index,
         repeatType: 'mirror',
       },
     })
@@ -38,9 +38,9 @@ watch(() => drawerOpen, (n) => {
 </script>
 
 <template>
-  <div ref="el">
+  <div ref="el" class="select-none rounded-md p-0.5" :class="{ 'hover:bg-gray/20': !data.noCloose }">
     <!-- pages router -->
-    <RouterLink v-if="data.type === 'router'" :to="data.to" class="flex items-center gap-2 c-black no-underline dark:text-white">
+    <RouterLink v-if="data.type === 'router'" :to="data.to" class="flex items-center gap-2 c-black no-underline dark:text-gray-300">
       <div class="text-xl" :class="data.icon" />
       <div class="text-xl">
         {{ data.name }}
@@ -48,7 +48,7 @@ watch(() => drawerOpen, (n) => {
     </RouterLink>
 
     <!-- external link -->
-    <a v-else-if="data.type === 'a'" :href="data.url" class="flex items-center gap-2 c-black no-underline dark:text-white">
+    <a v-else-if="data.type === 'a'" :href="data.url" class="flex items-center gap-2 c-black no-underline dark:text-gray-300">
       <div class="text-xl" :class="data.icon" />
       <div class="text-xl">
         {{ data.name }}
@@ -56,12 +56,17 @@ watch(() => drawerOpen, (n) => {
     </a>
 
     <!-- components -->
-    <div v-else-if="data.type === 'components'" class="w-full flex items-center gap-2 c-black dark:text-white">
+    <div v-else-if="data.type === 'components'" class="w-full flex items-center gap-2 c-black dark:text-gray-300">
       <div class="text-xl" :class="data.icon" />
       <div class="text-xl">
         {{ data.name }}
       </div>
       <component :is="data.component" />
+    </div>
+
+    <!-- group title -->
+    <div v-else-if="data.type === 'title'" class="border-gray-300 pb-1 text-sm c-black font-semibold uppercase dark:text-gray-300">
+      {{ data.name }}
     </div>
   </div>
 </template>

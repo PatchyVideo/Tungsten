@@ -38,7 +38,7 @@ const count = computed(() => props.playlistData ? props.playlistData.item.count 
       </div>
 
       <!-- Mask⬆️ for more video, "-1" position is adjusted for screen larger than 1920px, for mysterious no covering the video -->
-      <div class="pointer-events-none absolute w-30 from-light-100 to-transparent bg-gradient-to-l -bottom-1 -right-1 -top-1 md:w-50" />
+      <div class="pointer-events-none absolute w-30 from-light-100 to-transparent bg-gradient-to-l -bottom-1 -right-1 -top-1 md:w-50 dark:from-dark-100" />
     </div>
   </div>
 </template>
