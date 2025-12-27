@@ -154,6 +154,18 @@ function init() {
   applyFilters(false)
 }
 
+function resetFilters() {
+  order.value = 'latest'
+  date.value = []
+  site.value = ['']
+  qtype.value = 'tag'
+  includeKeywords.value = []
+  excludeKeywords.value = []
+  tagNum.value = 0
+  tagSelect.value = tagSwitch[0]
+  onlyShowAutotagedVideos.value = false
+}
+
 init()
 </script>
 
@@ -267,12 +279,19 @@ init()
           </HSwitch>
         </div>
 
-        <div class="p-x-1 p-y-2">
+        <div class="flex gap-2 p-x-1 p-y-2">
           <button
-            class="border border-gray:20 rounded border-solid bg-purple-600 px-4 py-2 text-white outline-amber transition duration-150 ease-in-out active:border-purple-400 hover:bg-purple-500:60"
+            class="btn"
             @click="applyFilters()"
           >
             确认筛选
+          </button>
+
+          <button
+            class="btn"
+            @click="resetFilters()"
+          >
+            重置筛选
           </button>
         </div>
       </div>

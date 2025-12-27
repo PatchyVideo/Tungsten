@@ -7,18 +7,19 @@ const props = defineProps({
 const emit = defineEmits(['update:modelValue'])
 
 const input = ref('')
-const tags = ref([...props.modelValue])
+const tags = computed({
+  get() { return props.modelValue },
+  set(value) { emit('update:modelValue', value) },
+})
 
 function addTag() {
   if (input.value.trim() && !tags.value.includes(input.value.trim())) {
     tags.value.push(input.value.trim())
-    emit('update:modelValue', tags.value)
     input.value = ''
   }
 }
 function removeTag(idx: number) {
   tags.value.splice(idx, 1)
-  emit('update:modelValue', tags.value)
 }
 </script>
 

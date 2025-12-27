@@ -5,7 +5,7 @@ const toggleDark = useToggle(isDark)
 
 <template>
   <button
-    class="mr-12 flex items-center gap-2 border-none bg-white transition-colors dark:bg-dark-600"
+    class="mr-12 flex items-center gap-2 border-none bg-transparent"
     @click="toggleDark()"
   >
     <div

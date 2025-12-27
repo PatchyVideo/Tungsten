@@ -189,7 +189,7 @@ watchEffect(() => {
       <span class="block sm:inline">{{ error.message }}</span>
     </div>
 
-    <div class="flex items-center bg-purple-300 p-6 text-white dark:bg-purple-900">
+    <div class="flex items-center bg-primaryContainer p-6 text-onPrimaryContainer dark:bg-dark-primaryContainer dark:text-white">
       <!-- 用户头像和昵称 -->
       <Avatar
         class="h-20 w-20 rounded-full transition-all duration-300"

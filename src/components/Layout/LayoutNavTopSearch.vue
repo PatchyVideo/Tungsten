@@ -253,7 +253,7 @@ onBeforeUnmount(() => {
     >
     <div v-show="searchContent" class="i-mdi:close-circle-outline mr-2 inline-block flex-shrink-0 text-gray-500" @click="searchContent = ''" />
     <button
-      class="hidden h-full cursor-pointer border-transparent rounded-r-lg bg-purple-200 px-3 text-purple-900 md:inline dark:bg-dark-200 dark:text-warmGray-100"
+      class="h-full cursor-pointer border-transparent rounded-r-lg bg-purple-200 px-3 text-purple-900 dark:bg-dark-200 dark:text-warmGray-100"
       @click="toSearch" v-text="'搜索'"
     />
 

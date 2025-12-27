@@ -70,10 +70,13 @@ const linkList = computed(() => {
 
 <template>
   <!-- Menu -->
-  <div class="h-full w-50 flex flex-col overflow-y-auto bg-white px-2 shadow-lg transition-colors duration-300 ease-in-out dark:bg-dark-600" @click="e => e.stopPropagation()">
+  <div
+    class="h-full w-50 flex flex-col overflow-y-auto bg-surface px-2 text-onSurface shadow-lg transition-colors duration-300 ease-in-out dark:bg-dark-surfaceContainer dark:text-dark-onSurface"
+    @click="e => e.stopPropagation()"
+  >
     <div class="h-16 w-50 flex items-center">
       <div
-        class="i-mdi-close h-8 w-8 cursor-pointer rounded-full transition transition-colors active:scale-90 hover:bg-purple-200"
+        class="i-mdi-close h-8 w-8 cursor-pointer rounded-full active:scale-90 hover:bg-purple-200"
         @click="drawerOpen = false"
       />
     </div>

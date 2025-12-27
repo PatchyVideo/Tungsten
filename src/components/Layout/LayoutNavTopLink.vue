@@ -38,9 +38,11 @@ watch(() => drawerOpen, (n) => {
 </script>
 
 <template>
-  <div ref="el" class="select-none rounded-md p-0.5" :class="{ 'hover:bg-gray/20': !data.noCloose }">
+  <div
+    ref="el" class="select-none rounded-md p-0.5" :class="{ 'hover:bg-gray/20': !data.noCloose }"
+  >
     <!-- pages router -->
-    <RouterLink v-if="data.type === 'router'" :to="data.to" class="flex items-center gap-2 c-black no-underline dark:text-gray-300">
+    <RouterLink v-if="data.type === 'router'" :to="data.to" class="flex items-center gap-2 text-onSurface no-underline dark:text-dark-onSurface">
       <div class="text-xl" :class="data.icon" />
       <div class="text-xl">
         {{ data.name }}
@@ -48,7 +50,7 @@ watch(() => drawerOpen, (n) => {
     </RouterLink>
 
     <!-- external link -->
-    <a v-else-if="data.type === 'a'" :href="data.url" class="flex items-center gap-2 c-black no-underline dark:text-gray-300">
+    <a v-else-if="data.type === 'a'" :href="data.url" class="flex items-center gap-2 text-onSurface no-underline dark:text-dark-onSurface">
       <div class="text-xl" :class="data.icon" />
       <div class="text-xl">
         {{ data.name }}
@@ -56,7 +58,7 @@ watch(() => drawerOpen, (n) => {
     </a>
 
     <!-- components -->
-    <div v-else-if="data.type === 'components'" class="w-full flex items-center gap-2 c-black dark:text-gray-300">
+    <div v-else-if="data.type === 'components'" class="w-full flex items-center gap-2 text-onSurface dark:text-dark-onSurface">
       <div class="text-xl" :class="data.icon" />
       <div class="text-xl">
         {{ data.name }}
@@ -65,7 +67,7 @@ watch(() => drawerOpen, (n) => {
     </div>
 
     <!-- group title -->
-    <div v-else-if="data.type === 'title'" class="border-gray-300 pb-1 text-sm c-black font-semibold uppercase dark:text-gray-300">
+    <div v-else-if="data.type === 'title'" class="border-gray-300 pb-1 text-sm font-semibold uppercase">
       {{ data.name }}
     </div>
   </div>
