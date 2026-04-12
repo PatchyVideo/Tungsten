@@ -9,7 +9,7 @@ const drawerOpen = ref(false)
 <template>
   <div class="relative">
     <div
-      class="inset-x-0 z-49 h-12 flex items-center justify-between bg-white p-2 shadow shadow-purple-100 transition-colors duration-300 ease-in-out md:h-12 dark:bg-dark-600 dark:shadow-gray-600"
+      class="inset-x-0 z-49 h-12 flex items-center justify-between bg-white p-x-6 p-y-2 shadow shadow-purple-100 transition-colors duration-300 ease-in-out md:h-12 dark:bg-dark-600 dark:shadow-gray-600"
     >
       <!-- Logo & Slide Button -->
       <div class="inline-flex flex-nowrap items-center space-x-2">

@@ -89,7 +89,7 @@ const notes = computed(() => messageStore.result.value?.listNotifications?.notes
         class="h-9 w-9 rounded-full ring ring-transparent hover:ring-gray-200 dark:hover:ring-gray-700"
       />
       <template #dropdown>
-        <div class="flex items-center space-x-4">
+        <div class="m-b-4 flex items-center space-x-4">
           <Avatar
             :image="auth.profile.image"
             class="h-16 w-16 rounded-full ring ring-transparent hover:ring-gray-200 dark:hover:ring-gray-700"
@@ -103,28 +103,36 @@ const notes = computed(() => messageStore.result.value?.listNotifications?.notes
             </div>
           </div>
         </div>
-        <RouterLink :to="`/user/${uid}`" class="text-base no-underline">
+        <RouterLink
+          :to="`/user/${uid}`"
+          class="text-base text-background no-underline hover:text-background"
+        >
           <div
-            class="w-auto whitespace-nowrap border-b b-b-blue border-solid border-l-none border-r-none border-t-none p-2"
+            class="w-auto flex items-center justify-between whitespace-nowrap rounded p-2 hover:bg-purple-900/50"
           >
             个人中心
+            <span class="i-mdi:chevron-right" />
           </div>
         </RouterLink>
 
         <RouterLink
           to="/user/msg"
-          class="block text-base no-underline sm:hidden"
+          class="block text-base text-background no-underline sm:hidden hover:text-background"
         >
           <div
-            class="w-auto whitespace-nowrap border-b b-b-blue border-solid border-l-none border-r-none border-t-none p-2"
+            class="w-auto flex items-center justify-between whitespace-nowrap rounded p-2 hover:bg-purple-900/50"
           >
             消息列表
+            <span class="i-mdi:chevron-right" />
           </div>
         </RouterLink>
 
-        <a class="cursor-pointer text-base no-underline" @click="logout">
+        <a
+          class="cursor-pointer text-base text-background no-underline hover:text-background"
+          @click="logout"
+        >
           <div
-            class="w-auto whitespace-nowrap border-b b-b-blue border-solid border-l-none border-r-none border-t-none p-2"
+            class="w-auto whitespace-nowrap rounded p-2 hover:bg-purple-900/50"
           >
             退出登录
           </div>

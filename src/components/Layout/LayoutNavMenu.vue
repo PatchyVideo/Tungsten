@@ -76,7 +76,7 @@ const linkList = computed(() => {
   >
     <div class="h-16 w-50 flex items-center">
       <div
-        class="i-mdi-close h-8 w-8 cursor-pointer rounded-full active:scale-90 hover:bg-purple-200"
+        class="i-mdi-close m-l-2 h-8 w-8 cursor-pointer rounded-full active:scale-90 hover:bg-purple-200"
         @click="drawerOpen = false"
       />
     </div>

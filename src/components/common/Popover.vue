@@ -34,7 +34,7 @@ useEventListener(document, 'click', (e: MouseEvent) => {
       leave-from-class="scale-100 opacity-100"
       leave-to-class="scale-95 -translate-y-1/20 opacity-0"
     >
-      <div v-if="show" ref="panelEl" class="absolute border border-purple-100 rounded border-solid bg-white dark:border-gray-700 dark:bg-dark-800" :style="{ right: `${panelRight}px` }">
+      <div v-if="show" ref="panelEl" class="absolute border border-purple-100 rounded border-solid bg-white dark:border-gray-700 dark:bg-dark" :style="{ right: `${panelRight}px` }">
         <div class="m-2">
           <slot name="dropdown" />
         </div>
