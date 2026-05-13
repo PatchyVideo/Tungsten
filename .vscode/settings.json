@@ -7,6 +7,13 @@
     "source.fixAll.eslint": "explicit",
     "source.organizeImports": "never"
   },
+  "explorer.fileNesting.enabled": true,
+  "explorer.fileNesting.patterns": {
+    "package.json": "package-lock.json, pnpm*, .yarnrc*, yarn*, .eslint*, eslint*, .prettier*, prettier*, .editorconfig, postcss.config.*, uno.config.*, vercel.json, apollo.config.js",
+    "tsconfig.json": "tsconfig.*, env.d.ts, typed-router.d.ts, components.d.ts, auto-imports.d.ts",
+    "vite.config.ts": "jsconfig*, vitest.config.*, cypress.config.*, playwright.config.*, index.html",
+    "README.md": "CONTRIBUTING.md, LICENSE"
+  },
   // Silent the stylistic rules in you IDE, but still auto fix them
   "eslint.rules.customizations": [
     {
