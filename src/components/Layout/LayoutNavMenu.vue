@@ -71,7 +71,7 @@ const linkList = computed(() => {
 <template>
   <!-- Menu -->
   <div
-    class="h-full w-50 flex flex-col overflow-y-auto bg-surface px-2 text-onSurface shadow-lg transition-colors duration-300 ease-in-out dark:bg-dark-surfaceContainer dark:text-dark-onSurface"
+    class="h-full w-54 flex flex-col overflow-y-auto bg-surface px-2 text-onSurface shadow-lg transition-colors duration-300 ease-in-out dark:bg-dark-surfaceContainer dark:text-dark-onSurface"
     @click="e => e.stopPropagation()"
   >
     <div class="h-16 w-50 flex items-center">

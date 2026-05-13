@@ -1,5 +1,5 @@
 import { defineConfig, presetIcons, presetUno } from 'unocss'
-import { m3Theme } from './src/assets/material-theme'
+import { m3Theme } from './src/assets/material-theme.ts'
 
 export default defineConfig({
   presets: [
@@ -7,7 +7,7 @@ export default defineConfig({
     // https://icones.js.org/collection/mdi
     presetIcons({
       collections: {
-        mdi: () => import('@iconify-json/mdi/icons.json').then(i => i.default),
+        mdi: () => import('@iconify-json/mdi/icons.json', { with: { type: 'json' } }).then(i => i.default),
       },
     }),
   ],
