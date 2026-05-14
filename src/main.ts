@@ -2,7 +2,6 @@ import type { PluginOptions } from 'vue-toastification'
 import { DefaultApolloClient } from '@vue/apollo-composable'
 import VueDatePicker from '@vuepic/vue-datepicker'
 import { createPinia } from 'pinia'
-import { setupLayouts } from 'virtual:generated-layouts'
 import { createApp } from 'vue'
 import { createWebHistory } from 'vue-router'
 import { createRouter } from 'vue-router/auto'
@@ -20,10 +19,10 @@ NProgress.start()
 
 const router = createRouter({
   history: createWebHistory(),
-  routes: setupLayouts([
+  routes: [
     { path: '/', redirect: '/home' },
     ...routes,
-  ]),
+  ],
 })
 
 const pinia = createPinia()
