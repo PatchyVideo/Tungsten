@@ -3,8 +3,8 @@ import type { LocationQueryValue } from 'vue-router'
 // =============== emit ================
 const emit = defineEmits<{
   (e: 'qChange', query: {
-    order: string
-    qtype: string
+    order: 'latest' | 'oldest' | 'video_latest' | 'video_oldest' | 'last_modified'
+    qtype: 'tag' | 'text'
     q: string
   }): void
 }>()
@@ -95,10 +95,10 @@ const excludeKeywords = ref<string[]>([])
 // ================ tag num ================
 const tagNum = ref(0)
 const tagSwitch = [
-  { value: 0, name: '不启用', con: '' },
-  { value: 1, name: '大于', con: '>' },
-  { value: 2, name: '等于', con: '=' },
-  { value: 3, name: '小于', con: '<' },
+  { value: '0', name: '不启用', con: '' },
+  { value: '1', name: '大于', con: '>' },
+  { value: '2', name: '等于', con: '=' },
+  { value: '3', name: '小于', con: '<' },
 ]
 const tagSelect = ref(tagSwitch[0])
 
@@ -111,7 +111,7 @@ function applyFilters(r: boolean = true) {
   const ekey = excludeKeywords.value.length ? ` NOT ${excludeKeywords.value.join(' NOT ')}` : ''
   const siteStr = !site.value.includes('') ? ` ANY(site:${site.value.join(' site:')})` : ''
   const dateStr = date.value.length ? ` date:>=${date.value[0].toISOString().split('T')[0]} date:<=${date.value[1].toISOString().split('T')[0]}` : ''
-  const tagStr = tagSelect.value.value ? ` tags:${tagSelect.value.con}${tagNum.value}` : ''
+  const tagStr = tagSelect.value.value !== '0' ? ` tags:${tagSelect.value.con}${tagNum.value}` : ''
   const onlyShowAutotagedVideosStr = onlyShowAutotagedVideos.value ? ' Auto_tagged' : ''
   const q = ikey + ekey + siteStr + dateStr + tagStr + onlyShowAutotagedVideosStr
   emit('qChange', {
@@ -148,7 +148,8 @@ function init() {
   includeKeywords.value = normalizeStringArray(route.query.ik)
   excludeKeywords.value = normalizeStringArray(route.query.ek)
   tagNum.value = Number(route.query.tagNum) || 0
-  tagSelect.value = tagSwitch.find(item => item.value === Number(route.query.tagSelect)) || tagSwitch[0]
+  const routeTagSelect = Array.isArray(route.query.tagSelect) ? route.query.tagSelect[0] : route.query.tagSelect
+  tagSelect.value = tagSwitch.find(item => item.value === String(routeTagSelect ?? '0')) || tagSwitch[0]
   onlyShowAutotagedVideos.value = (route.query.o as string) === '1'
 
   applyFilters(false)

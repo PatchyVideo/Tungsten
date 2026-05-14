@@ -4,9 +4,9 @@ defineProps<{
   meta: {
     title: string
     private: boolean
-    author: schema.User
+    author: schema.Maybe<schema.User>
     tags: schema.TagObject[]
-    rating?: schema.Rating
+    rating?: schema.Maybe<schema.Rating>
     cover: string
     desc: string
   } | null
@@ -31,6 +31,7 @@ defineProps<{
 
       <div class="flex flex-col gap-2 bg-light-200 p-1 text-sm md:col-span-2 md:p-5 md:pt-18">
         <UserMeta
+          v-if="meta.author"
           :id="meta.author.id"
           :image="meta.author.image"
           :gravatar="meta.author.gravatar ?? undefined"

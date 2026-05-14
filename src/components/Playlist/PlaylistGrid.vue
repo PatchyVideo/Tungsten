@@ -7,7 +7,7 @@ const name = computed(() => props.playlistData ? props.playlistData.item.title :
 const titleLinksTo = computed(() => props.playlistData ? `/playlist/${props.playlistData.id}` : '')
 const isPrivate = computed(() => props.playlistData ? props.playlistData.item.private : false)
 const author = computed(() => props.playlistData ? props.playlistData.meta.createdBy : undefined)
-const videos = computed(() => props.playlistData ? props.playlistData.videos : Array.from({ length: 6 }).fill(null))
+const videos = computed<(schema.Video | null)[]>(() => props.playlistData ? props.playlistData.videos : Array<schema.Video | null>(6).fill(null))
 const cover = computed(() => props.playlistData ? props.playlistData.item.cover : '')
 const count = computed(() => props.playlistData ? props.playlistData.item.count : 0)
 </script>

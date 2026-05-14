@@ -6,7 +6,7 @@ defineProps<{
   private: boolean
   name: string
   titleLinksTo: RouteLocationRaw
-  author?: schema.User
+  author?: schema.Maybe<schema.User>
 }>()
 </script>
 

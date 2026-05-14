@@ -107,8 +107,8 @@ function updatePage(page: number) {
 
     <div class="space-y-2">
       <PlaylistGrid
-        v-for="playlist in playlistResult"
-        :key="playlist"
+        v-for="(playlist, index) in playlistResult"
+        :key="playlist ? playlist.id : index"
         :playlist-data="playlist"
       />
     </div>

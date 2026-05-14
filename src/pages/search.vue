@@ -36,13 +36,13 @@ const site = useRouteQuery<number>('s', 0, { transform: Number })
 //   { label: '国外网站', value: '' },
 // ]
 const siteSwitch = [
-  { value: 0, name: '全部站点' },
-  { value: 1, name: '国内网站' },
-  { value: 2, name: '国外网站' },
+  { value: '0', name: '全部站点' },
+  { value: '1', name: '国内网站' },
+  { value: '2', name: '国外网站' },
 ]
-const siteSelect = ref(siteSwitch[site.value])
+const siteSelect = ref(siteSwitch[site.value] || siteSwitch[0])
 watch(siteSelect, (newVal) => {
-  site.value = newVal.value
+  site.value = Number(newVal.value)
 })
 </script>
 

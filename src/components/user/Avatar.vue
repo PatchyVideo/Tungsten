@@ -2,7 +2,7 @@
 import DefaultAvatar from '@/assets/DefaultAvatar.jpg'
 
 const props = defineProps<{
-  image: string
+  image?: string | null
 }>()
 
 const imgUrl = computed(() => {

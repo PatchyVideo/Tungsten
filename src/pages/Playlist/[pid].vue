@@ -77,7 +77,7 @@ const meta = computed(() => getPlaylist.value
   ? {
       title: getPlaylist.value.item.title,
       private: getPlaylist.value.item.private,
-      author: getPlaylist.value.meta.createdBy,
+      author: getPlaylist.value.meta.createdBy ?? null,
       tags: getPlaylist.value.tags,
       rating: getPlaylist.value.rating,
       cover: getPlaylist.value.item.cover,
@@ -158,7 +158,7 @@ function updatePage(page: number) {
 
       <CommentList
         v-if="getPlaylist"
-        :tid="getPlaylist.commentThread?.id"
+        :tid="getPlaylist.commentThread?.id ?? null"
         class="mt-5"
       />
     </div>
