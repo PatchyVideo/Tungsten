@@ -12,7 +12,8 @@ const route = useRoute()
 
 const currentLayout = computed(() => {
   const name = route.meta.layout
-  if (name === false) return undefined
+  if (name === false)
+    return undefined
   return layouts[typeof name === 'string' ? name : 'default'] ?? layouts.default
 })
 </script>

@@ -8,6 +8,7 @@ import Components from 'unplugin-vue-components/vite'
 import { VueRouterAutoImports } from 'unplugin-vue-router'
 import VueRouter from 'unplugin-vue-router/vite'
 import { defineConfig } from 'vite'
+import vueDevTools from 'vite-plugin-vue-devtools'
 import { version } from './package.json'
 
 // https://vite.dev/config/
@@ -78,6 +79,7 @@ export default defineConfig(async ({ mode }) => {
           HeadlessUiResolver({ prefix: 'H' }),
         ],
       }),
+      vueDevTools(),
     ],
   })
 })

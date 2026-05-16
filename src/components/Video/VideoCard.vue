@@ -31,7 +31,7 @@ const biliVideoPartNeeded = computed(() => {
 </script>
 
 <template>
-  <div :class="props.minWidth && `w-${props.minWidth}`">
+  <div :class="props.minWidth ? `w-${props.minWidth}` : ''">
     <!-- UI Loading -->
     <div v-if="!props.video" class="space-y-1">
       <div class="aspect-ratio-16/10 w-full rounded bg-gray-200 dark:bg-dark-200" />

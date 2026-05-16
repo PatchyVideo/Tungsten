@@ -16,8 +16,8 @@ defineProps<{
     </div>
     <Avatar
       class="w-1/6 cursor-pointer rounded-full md:w-1/10"
-      openable
-      hide-title
+
+      hide-title openable
       :alt="item.user.username"
       :image="item.user.image"
       :gravatar="item.user.gravatar"

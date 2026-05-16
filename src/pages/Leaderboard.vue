@@ -30,10 +30,10 @@ function updatePage(para: 'activeTab' | 'date', value: any): void {
   <div class="mt-5">
     <div class="w-full flex text-purple-600 space-x-2">
       <div class="flex flex-grow rounded-md bg-purple-100 p-1.5">
-        <div class="cursor-pointer rounded-md px-4 py-0.5 md:px-6 md:py-2" :class="activeTab || activeTabClass" @click="updatePage('activeTab', 0)">
+        <div class="cursor-pointer rounded-md px-4 py-0.5 md:px-6 md:py-2" :class="activeTab === 0 ? activeTabClass : ''" @click="updatePage('activeTab', 0)">
           <span class="hidden md:inline">标签贡献</span>排行榜
         </div>
-        <div class="cursor-pointer rounded-md px-4 py-0.5 md:px-6 md:py-2" :class="activeTab && activeTabClass" @click="updatePage('activeTab', 1)">
+        <div class="cursor-pointer rounded-md px-4 py-0.5 md:px-6 md:py-2" :class="activeTab ? activeTabClass : ''" @click="updatePage('activeTab', 1)">
           <span class="hidden md:inline">标签</span>编辑历史
         </div>
       </div>
