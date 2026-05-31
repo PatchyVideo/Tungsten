@@ -53,7 +53,7 @@ const notes = computed(() => messageStore.result.value?.listNotifications?.notes
   </div>
   <div v-else class="z-49 flex items-center space-x-4">
     <!-- Massage -->
-    <Popover v-if="route.path !== '/user/msg'" trigger="click" class="hidden sm:block">
+    <Popover v-if="route.path !== '/user/msg'" class="hidden sm:block" :edge-padding="24">
       <div class="relative inline-block w-fit">
         <div class="i-mdi:email-outline text-3xl text-coolgray" />
         <span v-show="count" class="absolute rounded-full bg-red-500 px-1.5 py-0.5 text-xs text-white -right-3 -top-3">
@@ -62,7 +62,7 @@ const notes = computed(() => messageStore.result.value?.listNotifications?.notes
       </div>
 
       <template #dropdown>
-        <div class="min-w-80 whitespace-nowrap p-y-1">
+        <div class="min-w-80 whitespace-nowrap p-2">
           <h4 class="m-b-2 m-t-0">
             消息和通知
           </h4>
@@ -83,60 +83,62 @@ const notes = computed(() => messageStore.result.value?.listNotifications?.notes
       </template>
     </Popover>
     <!-- Home -->
-    <Popover trigger="click">
+    <Popover placement="bottom-end">
       <Avatar
         :image="auth.profile.image"
         class="h-9 w-9 rounded-full ring ring-transparent hover:ring-gray-200 dark:hover:ring-gray-700"
       />
       <template #dropdown>
-        <div class="m-b-4 flex items-center space-x-4">
-          <Avatar
-            :image="auth.profile.image"
-            class="h-16 w-16 rounded-full ring ring-transparent hover:ring-gray-200 dark:hover:ring-gray-700"
-          />
-          <div class="w-auto whitespace-nowrap">
-            <div class="dark:text-gray-200">
-              {{ auth.profile.username }}
-            </div>
-            <div class="text-sm text-gray-500 dark:text-gray-400">
-              {{ auth.profile.email }}
+        <div class="p-2">
+          <div class="m-b-4 flex items-center space-x-4">
+            <Avatar
+              :image="auth.profile.image"
+              class="h-16 w-16 rounded-full ring ring-transparent hover:ring-gray-200 dark:hover:ring-gray-700"
+            />
+            <div class="w-auto whitespace-nowrap">
+              <div class="dark:text-gray-200">
+                {{ auth.profile.username }}
+              </div>
+              <div class="text-sm text-gray-500 dark:text-gray-400">
+                {{ auth.profile.email }}
+              </div>
             </div>
           </div>
+          <RouterLink
+            :to="`/user/${uid}`"
+            class="text-base text-background no-underline hover:text-background"
+          >
+            <div
+              class="w-auto flex items-center justify-between whitespace-nowrap rounded p-2 hover:bg-purple-900/50"
+            >
+              个人中心
+              <span class="i-mdi:chevron-right" />
+            </div>
+          </RouterLink>
+
+          <RouterLink
+            to="/user/msg"
+            class="block text-base text-background no-underline sm:hidden hover:text-background"
+          >
+            <div
+              class="w-auto flex items-center justify-between whitespace-nowrap rounded p-2 hover:bg-purple-900/50"
+            >
+              消息列表
+              <span class="i-mdi:chevron-right" />
+            </div>
+          </RouterLink>
+
+          <a
+            class="cursor-pointer text-base text-background no-underline hover:text-background"
+            @click="logout"
+          >
+            <div
+              class="w-auto whitespace-nowrap rounded p-2 hover:bg-purple-900/50"
+            >
+              退出登录
+            </div>
+          </a>
         </div>
-        <RouterLink
-          :to="`/user/${uid}`"
-          class="text-base text-background no-underline hover:text-background"
-        >
-          <div
-            class="w-auto flex items-center justify-between whitespace-nowrap rounded p-2 hover:bg-purple-900/50"
-          >
-            个人中心
-            <span class="i-mdi:chevron-right" />
-          </div>
-        </RouterLink>
-
-        <RouterLink
-          to="/user/msg"
-          class="block text-base text-background no-underline sm:hidden hover:text-background"
-        >
-          <div
-            class="w-auto flex items-center justify-between whitespace-nowrap rounded p-2 hover:bg-purple-900/50"
-          >
-            消息列表
-            <span class="i-mdi:chevron-right" />
-          </div>
-        </RouterLink>
-
-        <a
-          class="cursor-pointer text-base text-background no-underline hover:text-background"
-          @click="logout"
-        >
-          <div
-            class="w-auto whitespace-nowrap rounded p-2 hover:bg-purple-900/50"
-          >
-            退出登录
-          </div>
-        </a>
       </template>
     </Popover>
   </div>

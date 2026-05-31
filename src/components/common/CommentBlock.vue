@@ -1,8 +1,8 @@
 <!-- eslint-disable vue/no-v-html -->
 <script lang="ts" setup>
-import { render } from '@/utils/markdown/parserComment'
 import { useIntersectionObserver } from '@vueuse/core'
 import { nextTick, ref, shallowRef, watch } from 'vue'
+import { render } from '@/utils/markdown/parserComment'
 
 const props = defineProps<{
   text: string
