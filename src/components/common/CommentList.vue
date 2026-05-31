@@ -3,9 +3,10 @@ import type { CommentItemType } from '@/utils/comment'
 
 const props = defineProps<{
   tid: string | null
+  refreshToken?: number
 }>()
 
-const { result } = useQuery<Query>(
+const { result, refetch } = useQuery<Query>(
   gql`
     query ($tid: String!) {
       getThread(para: { threadId: $tid }) {
@@ -54,6 +55,12 @@ const { result } = useQuery<Query>(
     enabled: !!props.tid,
   }),
 )
+
+watch(() => props.refreshToken, () => {
+  if (props.tid)
+    refetch({ tid: props.tid })
+})
+
 const getThread = computed(() => result.value?.getThread || null)
 
 // comments
@@ -89,6 +96,14 @@ function sliceCommentChildren(id: string, children: CommentItemType[]) {
   return commentChildrenExpaneded[id] ? children : children.slice(0, 3)
 }
 const commentHiddenOverrides = reactive<Record<string, boolean>>({})
+
+function getHidden(id: string) {
+  return commentHiddenOverrides[id] ?? false
+}
+
+function setHidden(id: string, value: boolean) {
+  commentHiddenOverrides[id] = value
+}
 </script>
 
 <template>
@@ -103,7 +118,11 @@ const commentHiddenOverrides = reactive<Record<string, boolean>>({})
       <div class="divide-y divide-purple-100">
         <div v-for="item in comments" :key="item.id" class="py-3 space-y-2 md:py-6">
           <!-- Main comment -->
-          <CommentItem v-model:hidden="commentHiddenOverrides[item.id]" :comment="item" />
+          <CommentItem
+            :hidden="getHidden(item.id)"
+            :comment="item"
+            @update:hidden="value => setHidden(item.id, value)"
+          />
 
           <!-- Child comment -->
           <div v-if="item.children?.length" class="ml-10 md:ml-12 divide-y divide-purple-100">
@@ -112,10 +131,11 @@ const commentHiddenOverrides = reactive<Record<string, boolean>>({})
                 ? sliceCommentChildren(item.id, item.children)
                 : undefined"
               :key="child.id"
-              v-model:hidden="commentHiddenOverrides[child.id]"
               class="py-1 md:py-2"
               :comment="child"
               child
+              :hidden="getHidden(child.id)"
+              @update:hidden="value => setHidden(child.id, value)"
             />
           </div>
 

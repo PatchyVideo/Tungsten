@@ -39,6 +39,23 @@ const { result, loading } = useQuery<Query>(gql`
       }
     }
 `, { vid })
+
+const commentRefreshToken = ref(0)
+
+function handleCommentSubmitted() {
+  commentRefreshToken.value += 1
+}
+
+watch(loading, () => {
+  if (loading.value) {
+    if (!NProgress.isStarted())
+      NProgress.start()
+  }
+  else {
+    if (NProgress.isStarted())
+      NProgress.done()
+  }
+})
 </script>
 
 <template>
@@ -116,9 +133,12 @@ const { result, loading } = useQuery<Query>(gql`
         </section>
 
         <!-- 评论 -->
+        <Comment :video-id="vid" @submit="handleCommentSubmitted" />
+        <!-- 评论区 -->
         <CommentList
           v-if="result?.getVideo?.commentThread?.id"
           :tid="result.getVideo.commentThread.id"
+          :refresh-token="commentRefreshToken"
           class="mt-5"
         />
       </main>

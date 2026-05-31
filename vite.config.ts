@@ -47,6 +47,7 @@ export default defineConfig(async ({ mode }) => {
             '@vue/apollo-composable': [
               'useQuery',
               'useLazyQuery',
+              'useMutation',
             ],
             'graphql-tag': [
               'gql',
