@@ -22,7 +22,7 @@ async function login() {
 
     await userLogin(username.value, password.value, session)
     await useUserStore().refetch()
-    router.push('/')
+    router.back()
   }
   finally {
     loading.value = false

@@ -40,7 +40,7 @@ async function register() {
     // 注册用户
     await userSignup(username.value, password.value, session, email.value)
     await useUserStore().refetch()
-    router.push('/')
+    router.back()
   }
   catch (error) {
     errMsg.value = (error as Error).message

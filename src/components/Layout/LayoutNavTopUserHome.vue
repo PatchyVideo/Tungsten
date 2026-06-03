@@ -106,10 +106,10 @@ const notes = computed(() => messageStore.result.value?.listNotifications?.notes
           </div>
           <RouterLink
             :to="`/user/${uid}`"
-            class="text-base text-background no-underline hover:text-background"
+            class="text-base text-gray-800 no-underline dark:text-gray-200 hover:text-gray-800 dark:hover:text-gray-200"
           >
             <div
-              class="w-auto flex items-center justify-between whitespace-nowrap rounded p-2 hover:bg-purple-900/50"
+              class="w-auto flex items-center justify-between whitespace-nowrap rounded p-2 hover:bg-purple-200"
             >
               个人中心
               <span class="i-mdi:chevron-right" />
@@ -118,10 +118,10 @@ const notes = computed(() => messageStore.result.value?.listNotifications?.notes
 
           <RouterLink
             to="/user/msg"
-            class="block text-base text-background no-underline sm:hidden hover:text-background"
+            class="block text-base text-gray-800 no-underline sm:hidden dark:text-gray-200 hover:text-gray-800 dark:hover:text-gray-200"
           >
             <div
-              class="w-auto flex items-center justify-between whitespace-nowrap rounded p-2 hover:bg-purple-900/50"
+              class="w-auto flex items-center justify-between whitespace-nowrap rounded p-2 hover:bg-purple-200"
             >
               消息列表
               <span class="i-mdi:chevron-right" />
@@ -129,11 +129,11 @@ const notes = computed(() => messageStore.result.value?.listNotifications?.notes
           </RouterLink>
 
           <a
-            class="cursor-pointer text-base text-background no-underline hover:text-background"
+            class="cursor-pointer text-base text-gray-800 no-underline dark:text-gray-200 hover:text-gray-800 dark:hover:text-gray-200"
             @click="logout"
           >
             <div
-              class="w-auto whitespace-nowrap rounded p-2 hover:bg-purple-900/50"
+              class="w-auto whitespace-nowrap rounded p-2 hover:bg-purple-200"
             >
               退出登录
             </div>
