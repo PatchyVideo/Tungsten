@@ -1,4 +1,3 @@
-import 'uno.css'
 import './global.postcss'
 
 export const screens = {
