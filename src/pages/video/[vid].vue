@@ -40,6 +40,8 @@ const { result, loading } = useQuery<Query>(gql`
     }
 `, { vid })
 
+const videoNotFound = computed(() => !loading.value && !result.value?.getVideo)
+
 const commentRefreshToken = ref(0)
 
 function handleCommentSubmitted() {
@@ -59,7 +61,8 @@ watch(loading, () => {
 </script>
 
 <template>
-  <div class="mx-auto px-4 py-4 lg:px-6">
+  <NotFound v-if="videoNotFound" message="视频不存在或已被删除" back-path="/video-list" />
+  <div v-else class="mx-auto px-4 py-4 lg:px-6">
     <div class="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_20rem] xl:grid-cols-[minmax(0,1fr)_22rem]">
       <main class="min-w-0 space-y-2">
         <!-- <section class="border border-gray-200 rounded-2xl bg-white p-4 shadow-sm space-y-4 dark:border-gray-700 dark:bg-dark-200 lg:p-6"> -->
