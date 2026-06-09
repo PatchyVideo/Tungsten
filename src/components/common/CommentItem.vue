@@ -44,10 +44,7 @@ const hidden = useVModel(props, 'hidden', emit)
           @click="() => hidden = false"
         >显示评论</span>
       </div>
-      <!-- TODO: parser for markdown and emoji -->
-      <div v-else>
-        {{ props.comment.content.trim() ? props.comment.content : 'null' }}
-      </div>
+      <CommentBlock v-else :text="props.comment.content.trim() ? props.comment.content : 'null'" />
     </div>
   </div>
 </template>
