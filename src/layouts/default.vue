@@ -3,7 +3,7 @@
 </script>
 
 <template>
-  <div class="min-h-screen bg-white text-black transition-colors duration-300 ease-in-out dark:bg-dark dark:text-white">
+  <div class="min-h-screen bg-white text-onSurface transition-colors duration-300 ease-in-out dark:bg-dark-surface dark:text-dark-onSurface">
     <LayoutNavTop />
     <RouterView class="mx-auto max-w-500 px-6 lg:px-40 sm:px-15" />
     <LayoutFooter />

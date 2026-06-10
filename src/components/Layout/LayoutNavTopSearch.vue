@@ -238,11 +238,11 @@ onBeforeUnmount(() => {
 <template>
   <div
     ref="popover"
-    class="h-9 w-full flex items-center justify-start rounded-lg bg-white ring ring-1 ring-purple-300 dark:bg-dark-3 dark:ring-dark dark:focus-within:ring-indigo-600"
+    class="h-9 w-full flex items-center justify-start rounded-lg bg-surfaceContainerLowest ring ring-1 ring-outlineVariant dark:bg-dark-surfaceContainerHighest dark:ring-dark-outlineVariant dark:focus-within:ring-dark-primary"
   >
     <input
       v-model="searchContent"
-      class="h-full flex-1 border-transparent rounded-lg px-2 outline-none dark:bg-dark-3 dark:text-white"
+      class="h-full flex-1 border-transparent rounded-lg px-2 outline-none dark:bg-dark-surfaceContainerHighest dark:text-dark-onSurface"
       type="text" placeholder="搜索你想看的内容"
       @input="onInput"
       @compositionend="onCompositionEnd"
@@ -251,51 +251,51 @@ onBeforeUnmount(() => {
       @keydown="keydown"
       @keyup="keyup"
     >
-    <div v-show="searchContent" class="i-mdi:close-circle-outline mr-2 inline-block flex-shrink-0 text-gray-500" @click="searchContent = ''" />
+    <div v-show="searchContent" class="i-mdi:close-circle-outline mr-2 inline-block flex-shrink-0 text-onSurfaceVariant" @click="searchContent = ''" />
     <button
-      class="h-full cursor-pointer border-transparent rounded-r-lg bg-purple-200 px-3 text-purple-900 dark:bg-dark-200 dark:text-warmGray-100"
+      class="h-full cursor-pointer border-transparent rounded-r-lg bg-primaryContainer px-3 text-onPrimaryContainer dark:bg-dark-primaryContainer dark:text-dark-onPrimaryContainer"
       @click="toSearch" v-text="'搜索'"
     />
 
     <transition name="fade">
-      <div v-show="showView" class="absolute left-0 top-11 z-10 w-full rounded-lg bg-white ring ring-1 ring-purple-300 dark:bg-dark-3 dark:ring-indigo-600/40">
-        <div v-if="loading" class="p-2 text-gray-500">
+      <div v-show="showView" class="absolute left-0 top-11 z-10 w-full rounded-lg bg-surfaceContainerLowest ring ring-1 ring-outlineVariant dark:bg-dark-surfaceContainerHighest dark:ring-dark-outlineVariant">
+        <div v-if="loading" class="p-2 text-onSurfaceVariant dark:text-dark-onSurfaceVariant">
           少女祈祷中...
         </div>
         <div v-else-if="suggestedSearchTerms.length > 0 && searchContent" class="p-2">
           <div
             v-for="(tag, index) in suggestedSearchTerms"
             :key="tag.id"
-            class="flex cursor-pointer justify-between rounded p-1 hover:bg-gray-100 dark:hover:bg-dark-2"
-            :class="{ 'bg-purple-100 dark:bg-dark-2': keySelecting === index }"
+            class="flex cursor-pointer justify-between rounded p-1 hover:bg-surfaceContainer dark:hover:bg-dark-surfaceContainerHigh"
+            :class="{ 'bg-primaryContainer dark:bg-dark-surfaceContainerHigh': keySelecting === index }"
             @click="selectTag(tag.keyword)"
           >
             <div>
               <div>{{ tag.keyword }}</div>
-              <div class="text-gray-500">
+              <div class="text-onSurfaceVariant dark:text-dark-onSurfaceVariant">
                 {{ tag.langs.sort((a, b) => b.l - a.l)[0].w }}
               </div>
             </div>
-            <div class="text-gray-500">
+            <div class="text-onSurfaceVariant dark:text-dark-onSurfaceVariant">
               热度: {{ tag.cnt }}
             </div>
           </div>
         </div>
 
-        <div v-else-if="popularTags.length === 0" class="p-2 text-gray-500">
+        <div v-else-if="popularTags.length === 0" class="p-2 text-onSurfaceVariant dark:text-dark-onSurfaceVariant">
           暂无热门标签
         </div>
         <div v-else class="p-2">
           <div
             v-for="(tag, index) in popularTags"
             :key="tag.id"
-            class="flex cursor-pointer justify-between rounded p-1 hover:bg-gray-100 dark:hover:bg-dark-2"
-            :class="{ 'bg-purple-100 dark:bg-dark-2': keySelecting === index }"
+            class="flex cursor-pointer justify-between rounded p-1 hover:bg-surfaceContainer dark:hover:bg-dark-surfaceContainerHigh"
+            :class="{ 'bg-primaryContainer dark:bg-dark-surfaceContainerHigh': keySelecting === index }"
             @click="selectTag(tag.value)"
           >
             <!-- {{ tag.value }} (热度: {{ tag.popularity }}) -->
             <div>{{ tag.value }}</div>
-            <div class="text-gray-500">
+            <div class="text-onSurfaceVariant dark:text-dark-onSurfaceVariant">
               热度: {{ tag.popularity }}
             </div>
           </div>

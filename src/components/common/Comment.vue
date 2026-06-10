@@ -117,9 +117,9 @@ async function handleSubmit() {
 </script>
 
 <template>
-  <section class="border border-gray-200 rounded-2xl bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-dark-200">
+  <section class="border border-outlineVariant rounded-2xl bg-surfaceContainerLowest p-4 shadow-sm dark:border-dark-outlineVariant dark:bg-dark-surfaceContainer">
     <div class="flex items-center justify-between gap-3">
-      <h2 class="text-base text-gray-900 font-semibold dark:text-gray-100">
+      <h2 class="text-base text-onSurface font-semibold dark:text-dark-onSurface">
         发表评论
       </h2>
     </div>
@@ -128,14 +128,14 @@ async function handleSubmit() {
       <textarea
         ref="textareaRef"
         v-model="comment"
-        class="box-border w-full resize-none overflow-y-auto b-none bg-transparent caret-gray-900 outline-none transition-colors dark:text-white dark:caret-white"
+        class="box-border w-full resize-none overflow-y-auto b-none bg-transparent caret-onSurface outline-none transition-colors dark:text-dark-onSurface dark:caret-dark-onSurface"
         :placeholder="auth ? '写下你的评论' : '登录后发表评论'"
         :disabled="!auth"
         rows="5"
       />
 
       <div class="flex items-center justify-between gap-3">
-        <span class="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+        <span class="flex items-center gap-2 text-sm text-onSurfaceVariant dark:text-dark-onSurfaceVariant">
           <!-- {{ auth ? `当前账号：${auth.username}` : '' }} -->
           <!-- 请先登录后再发表评论 -->
           <Popover placement="bottom-start">
@@ -145,7 +145,7 @@ async function handleSubmit() {
                 <button
                   v-for="emoji in EMOJI_LIST"
                   :key="emoji"
-                  class="cursor-pointer border-0 bg-transparent p-0.5 text-center transition-colors hover:bg-gray-100 dark:hover:bg-gray-700"
+                  class="cursor-pointer border-0 bg-transparent p-0.5 text-center transition-colors hover:bg-surfaceContainer dark:hover:bg-dark-surfaceContainerHigh"
                   @click="insertEmoji(emoji)"
                 >
                   {{ emoji }}
@@ -160,7 +160,7 @@ async function handleSubmit() {
                 <button
                   v-for="kw in KAOMOJI_LIST"
                   :key="kw"
-                  class="cursor-pointer whitespace-nowrap border-0 rounded bg-transparent p-1 text-center transition-colors hover:bg-gray-100 dark:hover:bg-gray-700"
+                  class="cursor-pointer whitespace-nowrap border-0 rounded bg-transparent p-1 text-center transition-colors hover:bg-surfaceContainer dark:hover:bg-dark-surfaceContainerHigh"
                   @click="insertEmoji(kw)"
                 >
                   {{ kw }}

@@ -9,15 +9,15 @@ const drawerOpen = ref(false)
 <template>
   <div class="relative">
     <div
-      class="inset-x-0 z-49 h-12 flex items-center justify-between bg-white p-x-6 p-y-2 shadow shadow-purple-100 transition-colors duration-300 ease-in-out md:h-12 dark:bg-dark-600 dark:shadow-gray-600"
+      class="inset-x-0 z-49 h-12 flex items-center justify-between bg-surfaceContainerLowest p-x-6 p-y-2 shadow shadow-outlineVariant transition-colors duration-300 ease-in-out md:h-12 dark:bg-dark-surfaceContainer dark:shadow-dark-outlineVariant"
     >
       <!-- Logo & Slide Button -->
       <div class="inline-flex flex-nowrap items-center space-x-2">
         <div
-          class="i-mdi-menu h-8 w-8 cursor-pointer rounded-full transition transition-colors active:scale-90 hover:bg-purple-200"
+          class="i-mdi-menu h-8 w-8 cursor-pointer rounded-full transition transition-colors active:scale-90 hover:bg-primaryContainer dark:hover:bg-dark-primaryContainer"
           @click="drawerOpen = true"
         />
-        <RouterLink to="/" class="hidden text-black xl:inline dark:text-white hover:text-inherit">
+        <RouterLink to="/" class="hidden text-onSurface xl:inline dark:text-dark-onSurface hover:text-inherit">
           <Logo />
         </RouterLink>
       </div>

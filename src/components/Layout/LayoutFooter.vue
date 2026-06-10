@@ -96,12 +96,12 @@ const users = computed(() => result.value?.getStats.users ?? 0)
 </script>
 
 <template>
-  <div class="mt-12 border-1 border-purple-300 border-t-solid bg-gray-50 dark:border-gray-600 dark:bg-dark-700 dark:text-gray-200">
+  <div class="mt-12 border-1 border-outline border-t-solid bg-gray-50 dark:border-dark-outlineVariant dark:bg-dark-surfaceContainerLow dark:text-dark-onSurface">
     <div class="mt-8 flex flex-row flex-wrap justify-center py-8 space-x-2">
       <div v-for="linkGroup in links" :key="linkGroup.key">
         <ul class="list-none px-2 lg:px-8 md:px-4">
           <li>
-            <h2 class="py-1 text-gray-900 font-semibold tracking-wide dark:text-gray" v-text="linkGroup.key" />
+            <h2 class="py-1 text-onSurface font-semibold tracking-wide dark:text-dark-onSurface" v-text="linkGroup.key" />
           </li>
           <li v-for="link in linkGroup.links" :key="link.key">
             <a
@@ -119,7 +119,7 @@ const users = computed(() => result.value?.getStats.users ?? 0)
     <div v-if="!small" class="overflow-hidden whitespace-nowrap text-center text-sm font-light font-sans">
       <span ref="typedEl" />
     </div>
-    <div class="mt-4 text-center text-sm text-gray-600 dark:text-gray-400">
+    <div class="mt-4 text-center text-sm text-onSurfaceVariant dark:text-dark-onSurfaceVariant">
       <span>{{ `PatchyVideo 正在为${users}个像你一样的用户提供服务！` }}</span><br>
       <span><span>Tungsten v{{ version }}</span>(<a
         :href="`https://github.com/PatchyVideo/Tungsten/commit/${commitHash}`"

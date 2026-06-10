@@ -55,8 +55,8 @@ const notes = computed(() => messageStore.result.value?.listNotifications?.notes
     <!-- Massage -->
     <Popover v-if="route.path !== '/user/msg'" class="hidden sm:block" :edge-padding="24">
       <div class="relative inline-block w-fit">
-        <div class="i-mdi:email-outline text-3xl text-coolgray" />
-        <span v-show="count" class="absolute rounded-full bg-red-500 px-1.5 py-0.5 text-xs text-white -right-3 -top-3">
+        <div class="i-mdi:email-outline text-3xl text-onSurfaceVariant" />
+        <span v-show="count" class="absolute rounded-full bg-error px-1.5 py-0.5 text-xs text-onError -right-3 -top-3">
           {{ count }}
         </span>
       </div>
@@ -86,30 +86,30 @@ const notes = computed(() => messageStore.result.value?.listNotifications?.notes
     <Popover placement="bottom-end">
       <Avatar
         :image="auth.profile.image"
-        class="h-9 w-9 rounded-full ring ring-transparent hover:ring-gray-200 dark:hover:ring-gray-700"
+        class="h-9 w-9 rounded-full ring ring-transparent hover:ring-outlineVariant dark:hover:ring-dark-outlineVariant"
       />
       <template #dropdown>
         <div class="p-2">
           <div class="m-b-4 flex items-center space-x-4">
             <Avatar
               :image="auth.profile.image"
-              class="h-16 w-16 rounded-full ring ring-transparent hover:ring-gray-200 dark:hover:ring-gray-700"
+              class="h-16 w-16 rounded-full ring ring-transparent hover:ring-outlineVariant dark:hover:ring-dark-outlineVariant"
             />
             <div class="w-auto whitespace-nowrap">
-              <div class="dark:text-gray-200">
+              <div class="dark:text-dark-onSurface">
                 {{ auth.profile.username }}
               </div>
-              <div class="text-sm text-gray-500 dark:text-gray-400">
+              <div class="text-sm text-onSurfaceVariant dark:text-dark-onSurfaceVariant">
                 {{ auth.profile.email }}
               </div>
             </div>
           </div>
           <RouterLink
             :to="`/user/${uid}`"
-            class="text-base text-gray-800 no-underline dark:text-gray-200 hover:text-gray-800 dark:hover:text-gray-200"
+            class="text-base text-onSurface no-underline dark:text-dark-onSurface hover:text-onSurface dark:hover:text-dark-onSurface"
           >
             <div
-              class="w-auto flex items-center justify-between whitespace-nowrap rounded p-2 hover:bg-purple-200"
+              class="w-auto flex items-center justify-between whitespace-nowrap rounded p-2 hover:bg-primaryContainer dark:hover:bg-dark-primaryContainer"
             >
               个人中心
               <span class="i-mdi:chevron-right" />
@@ -118,10 +118,10 @@ const notes = computed(() => messageStore.result.value?.listNotifications?.notes
 
           <RouterLink
             to="/user/msg"
-            class="block text-base text-gray-800 no-underline sm:hidden dark:text-gray-200 hover:text-gray-800 dark:hover:text-gray-200"
+            class="block text-base text-onSurface no-underline sm:hidden dark:text-dark-onSurface hover:text-onSurface dark:hover:text-dark-onSurface"
           >
             <div
-              class="w-auto flex items-center justify-between whitespace-nowrap rounded p-2 hover:bg-purple-200"
+              class="w-auto flex items-center justify-between whitespace-nowrap rounded p-2 hover:bg-primaryContainer dark:hover:bg-dark-primaryContainer"
             >
               消息列表
               <span class="i-mdi:chevron-right" />
@@ -129,11 +129,11 @@ const notes = computed(() => messageStore.result.value?.listNotifications?.notes
           </RouterLink>
 
           <a
-            class="cursor-pointer text-base text-gray-800 no-underline dark:text-gray-200 hover:text-gray-800 dark:hover:text-gray-200"
+            class="cursor-pointer text-base text-onSurface no-underline dark:text-dark-onSurface hover:text-onSurface dark:hover:text-dark-onSurface"
             @click="logout"
           >
             <div
-              class="w-auto whitespace-nowrap rounded p-2 hover:bg-purple-200"
+              class="w-auto whitespace-nowrap rounded p-2 hover:bg-primaryContainer dark:hover:bg-dark-primaryContainer"
             >
               退出登录
             </div>
