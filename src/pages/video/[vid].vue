@@ -18,7 +18,17 @@ const { result, loading } = useQuery<Query>(gql`
           site
         }
         tags {
+          tagid
+          category
           languages{lang value}
+        }
+        meta {
+          createdBy {
+            id
+            username
+            image
+            desc
+          }
         }
         commentThread{
           id
@@ -79,11 +89,15 @@ watch(loading, () => {
           <h1 class="text-2xl font-bold">
             {{ result?.getVideo?.item?.title }}
           </h1>
-          <div class="flex flex-wrap gap-2">
-            <span v-for="value in result?.getVideo.tags" :key="value.id" class="inline-block rounded-full bg-secondaryContainer px-3 py-1 text-sm text-onSecondaryContainer dark:bg-dark-secondaryContainer dark:text-dark-onSecondaryContainer">
-              {{ value.languages.find(lang => lang.lang === 'CHS')?.value || value.languages[0]?.value || '未知标签' }}
-            </span>
-          </div>
+          <UserMeta
+            v-if="result?.getVideo?.meta?.createdBy"
+            :id="result.getVideo.meta.createdBy.id"
+            :username="result.getVideo.meta.createdBy.username"
+            :image="result.getVideo.meta.createdBy.image"
+            :desc="result.getVideo.meta.createdBy.desc"
+            show-img
+          />
+          <TagGroup v-if="result?.getVideo?.tags?.length" :tags="result.getVideo.tags" />
           <div class="grid gap-3 text-sm sm:grid-cols-2">
             <div class="rounded-xl bg-gray-50 p-3 dark:bg-dark-surfaceContainerHigh">
               <div class="text-onSurfaceVariant dark:text-dark-onSurfaceVariant">

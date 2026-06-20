@@ -22,8 +22,11 @@ const catogoryMap: {
   soundtrack: 'bg-soundtrack',
 }
 
-// TODO: complete this
-function search() {}
+const router = useRouter()
+
+function search() {
+  router.push({ path: '/search', query: { tag: tagComp.value.name } })
+}
 </script>
 
 <template>
