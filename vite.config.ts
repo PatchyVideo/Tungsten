@@ -5,8 +5,8 @@ import UnoCSS from 'unocss/vite'
 import AutoImport from 'unplugin-auto-import/vite'
 import { HeadlessUiResolver } from 'unplugin-vue-components/resolvers'
 import Components from 'unplugin-vue-components/vite'
-import { VueRouterAutoImports } from 'unplugin-vue-router'
-import VueRouter from 'unplugin-vue-router/vite'
+import { VueRouterAutoImports } from 'vue-router/unplugin'
+import VueRouter from 'vue-router/vite'
 import { defineConfig } from 'vite'
 import vueDevTools from 'vite-plugin-vue-devtools'
 import { version } from './package.json'
@@ -35,7 +35,9 @@ export default defineConfig(async ({ mode }) => {
       'import.meta.env.VITE_APP_BUILDTIME': JSON.stringify(data.date.toISOString()),
     },
     plugins: [
-      VueRouter({}),
+      VueRouter({
+        dts: 'src/route-map.d.ts',
+      }),
       vue(),
       UnoCSS(),
       AutoImport({

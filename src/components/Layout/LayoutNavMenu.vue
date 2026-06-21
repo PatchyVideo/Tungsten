@@ -32,12 +32,13 @@ const linkList = computed(() => {
       type: 'router',
       to: '/playlist-list',
     },
-    {
-      name: '讨论板',
-      icon: 'i-mdi:message-minus-outline',
-      type: 'router',
-      to: '/video',
-    },
+    // TODO: 讨论板功能开发完成后取消注释
+    // {
+    //   name: '讨论板',
+    //   icon: 'i-mdi:message-minus-outline',
+    //   type: 'router',
+    //   to: '/video',
+    // },
     {
       name: '用户排行榜',
       icon: 'i-mdi:format-list-numbered',
