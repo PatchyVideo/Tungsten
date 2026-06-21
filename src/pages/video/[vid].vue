@@ -16,6 +16,7 @@ const { result, loading } = useQuery<Query>(gql`
           url
           repostType
           site
+          coverImage
         }
         tags {
           tagid
@@ -44,6 +45,19 @@ const { result, loading } = useQuery<Query>(gql`
           }
           meta {
             createdAt
+          }
+        }
+        playlists(lang: "CHS") {
+          id
+          rank
+          meta {
+            title
+            cover
+            count
+            private
+          }
+          playlist {
+            id
           }
         }
       }
@@ -89,6 +103,10 @@ watch(loading, () => {
           <h1 class="text-2xl font-bold">
             {{ result?.getVideo?.item?.title }}
           </h1>
+          <RepostTypeBadge
+            v-if="result?.getVideo?.item?.repostType"
+            :repost-type="result.getVideo.item.repostType"
+          />
           <UserMeta
             v-if="result?.getVideo?.meta?.createdBy"
             :id="result.getVideo.meta.createdBy.id"
@@ -188,6 +206,13 @@ watch(loading, () => {
             没有相关视频
           </div>
         </section>
+
+        <!-- 所属播放列表 -->
+        <VideoPlaylistList
+          v-if="result?.getVideo?.playlists?.length"
+          :playlists="result.getVideo.playlists"
+          class="mt-4"
+        />
       </aside>
     </div>
   </div>

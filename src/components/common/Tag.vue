@@ -25,7 +25,7 @@ const catogoryMap: {
 const router = useRouter()
 
 function search() {
-  router.push({ path: '/search', query: { tag: tagComp.value.name } })
+  router.push({ path: '/search', query: { q: tagComp.value.name } })
 }
 </script>
 
