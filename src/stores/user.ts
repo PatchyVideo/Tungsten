@@ -27,7 +27,9 @@ export const useUserStore = defineStore('user', () => {
    * Refetch the user's data.
    */
   async function refetch() {
-    auth.value = await refetchProfile()
+    const result = await refetchProfile()
+    if (result.ok)
+      auth.value = result.data
   }
 
   function logout() {

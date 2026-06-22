@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import { type ApiError, unwrap } from '@/apis/request'
+import { getAuthErrorMessage } from '@/apis/userAuthManager'
+
 const username = ref<string>('')
 const password = ref<string>('')
 const confirmPassword = ref<string>('')
@@ -16,38 +19,41 @@ async function register() {
     return
 
   loading.value = true
-
-  try {
-    // 检查用户名是否存在
-    const usernameExists = await checkUsername(username.value)
-    if (usernameExists) {
-      errMsg.value = '用户名已存在'
-      return
-    }
-
-    // 检查邮箱是否存在
-    const emailExists = await checkEmail(email.value)
-    if (emailExists) {
-      errMsg.value = '邮箱已被使用'
-      return
-    }
-
-    // 获取会话令牌
-    const session = await getSession()
-    if (!session)
-      return
-
-    // 注册用户
-    await userSignup(username.value, password.value, session, email.value)
-    await useUserStore().refetch()
-    router.back()
+  const fail = (e: ApiError) => {
+    errMsg.value = getAuthErrorMessage(e)
   }
-  catch (error) {
-    errMsg.value = (error as Error).message
+
+  // 检查用户名是否存在
+  const usernameExists = await checkUsername(username.value).then(r => unwrap(r, fail))
+  if (usernameExists == null)
+    return loading.value = false
+  if (usernameExists) {
+    errMsg.value = '用户名已存在'
+    return loading.value = false
   }
-  finally {
-    loading.value = false
+
+  // 检查邮箱是否存在
+  const emailExists = await checkEmail(email.value).then(r => unwrap(r, fail))
+  if (emailExists == null)
+    return loading.value = false
+  if (emailExists) {
+    errMsg.value = '邮箱已被使用'
+    return loading.value = false
   }
+
+  // 获取会话令牌
+  const session = await getSession().then(r => unwrap(r, fail))
+  if (session == null)
+    return loading.value = false
+
+  // 注册用户
+  const signup = await userSignup(username.value, password.value, session, email.value).then(r => unwrap(r, fail))
+  if (signup == null)
+    return loading.value = false
+
+  await useUserStore().refetch()
+  router.back()
+  loading.value = false
 }
 
 function validate() {

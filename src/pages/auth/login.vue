@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import { type ApiError, unwrap } from '@/apis/request'
+import { getAuthErrorMessage } from '@/apis/userAuthManager'
+
 const username = ref<string>('')
 const password = ref<string>('')
 const errMsg = ref<string>('')
@@ -15,18 +18,21 @@ async function login() {
 
   loading.value = true
 
-  try {
-    const session = await getSession()
-    if (!session)
-      return
+  const fail = (e: ApiError) => {
+    errMsg.value = getAuthErrorMessage(e)
+  }
 
-    await userLogin(username.value, password.value, session)
-    await useUserStore().refetch()
-    router.back()
-  }
-  finally {
-    loading.value = false
-  }
+  const session = await getSession().then(r => unwrap(r, fail))
+  if (session == null)
+    return loading.value = false
+
+  const login = await userLogin(username.value, password.value, session).then(r => unwrap(r, fail))
+  if (login == null)
+    return loading.value = false
+
+  await useUserStore().refetch()
+  router.back()
+  loading.value = false
 }
 
 // 验证用户名/邮箱输入框规则（字符在2~20之间） 验证密码输入框规则（字符在6~20之间） 验证不为空

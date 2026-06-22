@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
+import { type ApiError, unwrap } from '@/apis/request'
+import { getAuthErrorMessage } from '@/apis/userAuthManager'
 
 setSiteTitle('个人信息')
 
@@ -67,21 +69,18 @@ async function updateUsername(e: FocusEvent) {
     return
   }
 
-  try {
-    const usernameExists = await checkUsername(username)
-    if (usernameExists) {
-      toast.error('用户名已存在')
-      return
-    }
+  const fail = (e: ApiError) => {
+    toast.error(getAuthErrorMessage(e))
+  }
 
-    const changeUsernameState = await changeUsername(username)
-    if (changeUsernameState)
-      refetch()
-  }
-  catch (error) {
-    toast.error((error as Error).message)
-    // target.textContent = auth.value?.username || 'Unknown User'
-  }
+  const usernameExists = await checkUsername(username).then(r => unwrap(r, fail))
+  if (usernameExists == null || usernameExists)
+    return
+
+  const changed = await changeUsername(username).then(r => unwrap(r, fail))
+  if (changed == null)
+    return
+  refetch()
 }
 
 // edit desc
@@ -93,12 +92,13 @@ function updateDesc(e: FocusEvent) {
     return
 
   NProgress.start()
-  changeDesc(desc).then((res) => {
-    if (res)
-      refetch()
-  }).finally(() => {
-    NProgress.done()
-  })
+  changeDesc(desc)
+    .then(r => unwrap(r, e => toast.error(getAuthErrorMessage(e))))
+    .then((data) => {
+      if (data != null)
+        refetch()
+    })
+    .finally(() => NProgress.done())
 }
 
 // update password
@@ -149,23 +149,24 @@ function validate() {
 
 async function updatePassword() {
   passwordState.value = 1
-  validate()
   if (!validate())
     return
   passwordState.value = 2
   NProgress.start()
-  try {
-    await changePassword(passwordform.oldPassword, passwordform.newPassword)
-    toast.success('密码已更新')
-    passwordMsg.value[2] = '密码已更新'
-  }
-  catch (error) {
-    passwordState.value = 1
-    passwordMsg.value[1] = (error as Error).message
-  }
-  finally {
-    NProgress.done()
-  }
+
+  await changePassword(passwordform.oldPassword, passwordform.newPassword)
+    .then(r => unwrap(r, e => {
+      passwordState.value = 1
+      passwordMsg.value[1] = getAuthErrorMessage(e)
+    }))
+    .then(data => {
+      if (data != null) {
+        toast.success('密码已更新')
+        passwordMsg.value[2] = '密码已更新'
+      }
+    })
+
+  NProgress.done()
 }
 // ====== Loding ======
 // 监听加载状态并控制进度条
