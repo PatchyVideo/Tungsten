@@ -23,6 +23,7 @@ export interface UserStore {
 
 export const useUserStore = defineStore('user', () => {
   const auth = ref<UserStore | null>(null)
+  const isAdmin = computed(() => auth.value?.profile?.access_control_status === 'admin')
   /**
    * Refetch the user's data.
    */
@@ -42,6 +43,7 @@ export const useUserStore = defineStore('user', () => {
 
   return {
     auth,
+    isAdmin,
     refetch,
     logout,
   }

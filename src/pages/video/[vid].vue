@@ -1,4 +1,9 @@
 <script setup lang="ts">
+import { storeToRefs } from 'pinia'
+
+const userStore = useUserStore()
+const { isAdmin } = storeToRefs(userStore)
+
 const route = useRoute('/video/[vid]')
 const vid = computed(() => {
   const params = route.params
@@ -6,7 +11,7 @@ const vid = computed(() => {
 })
 
 // 使用 GraphQL 查询
-const { result, loading } = useQuery<Query>(gql`
+const { result, loading, refetch } = useQuery<Query>(gql`
     query($vid: String!){
       getVideo(para: {vid: $vid, lang: "CHS"}) {
         item {
@@ -18,6 +23,7 @@ const { result, loading } = useQuery<Query>(gql`
           site
           coverImage
         }
+        clearence
         tags {
           tagid
           category
@@ -103,6 +109,12 @@ watch(loading, () => {
           <h1 class="text-2xl font-bold">
             {{ result?.getVideo?.item?.title }}
           </h1>
+          <AdminToolbar
+            v-if="isAdmin && result?.getVideo"
+            :vid="vid"
+            :clearence="result.getVideo.clearence"
+            @refetch="refetch()"
+          />
           <RepostTypeBadge
             v-if="result?.getVideo?.item?.repostType"
             :repost-type="result.getVideo.item.repostType"
