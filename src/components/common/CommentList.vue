@@ -6,6 +6,12 @@ const props = defineProps<{
   refreshToken?: number
 }>()
 
+/* ====== User ====== */
+const userStore = useUserStore()
+const currentUserId = computed(() => userStore.auth?.profile?.uid)
+const isAdmin = computed(() => userStore.isAdmin)
+
+/* ====== Query ====== */
 const { result, refetch } = useQuery<Query>(
   gql`
     query ($tid: String!) {
@@ -17,6 +23,9 @@ const { result, refetch } = useQuery<Query>(
           hidden
           deleted
           edited
+          pinned
+          upvotes
+          downvotes
           meta {
             createdAt
             createdBy {
@@ -33,6 +42,9 @@ const { result, refetch } = useQuery<Query>(
             hidden
             deleted
             edited
+            pinned
+            upvotes
+            downvotes
             meta {
               createdAt
               createdBy {
@@ -69,13 +81,13 @@ const comments = computed(
     if (getThread.value && getThread.value.comments) {
       return getThread.value.comments
       // comment needs to have content & not be deleted
-        ?.filter(v => v.content && v.meta.createdBy && !v.deleted)
+        ?.filter(v => v.content && v.meta.createdBy && !v.deleted && (!v.hidden || isAdmin.value))
       // filter children
         .map(comment => ({
           ...comment,
           children: comment.children
-          // comment needs to have content & not be deleted
-            ?.filter(v => v.content && v.meta.createdBy && !v.deleted)
+          // comment needs to have content & not be deleted, hide hidden from non-admin
+            ?.filter(v => v.content && v.meta.createdBy && !v.deleted && (!v.hidden || isAdmin.value))
           // sort by createdAt, latest first
             .sort((a, b) => +b.meta.createdAt - +a.meta.createdAt),
         }))
@@ -97,12 +109,176 @@ function sliceCommentChildren(id: string, children: CommentItemType[]) {
 }
 const commentHiddenOverrides = reactive<Record<string, boolean>>({})
 
-function getHidden(id: string) {
-  return commentHiddenOverrides[id] ?? false
+function getHidden(id: string, serverHidden: boolean) {
+  return commentHiddenOverrides[id] ?? serverHidden
 }
 
 function setHidden(id: string, value: boolean) {
   commentHiddenOverrides[id] = value
+}
+
+/* ====== Reply State ====== */
+const replyingTo = ref<string | null>(null)
+const replyText = ref('')
+const isReplySubmitting = ref(false)
+
+function startReply(commentId: string) {
+  replyingTo.value = commentId
+  replyText.value = ''
+}
+
+function cancelReply() {
+  replyingTo.value = null
+  replyText.value = ''
+}
+
+function getReplyUsername(commentId: string): string {
+  const findComment = (list: CommentItemType[]): CommentItemType | undefined => {
+    for (const c of list) {
+      if (c.id === commentId)
+        return c
+      if (c.children) {
+        const found = findComment(c.children)
+        if (found)
+          return found
+      }
+    }
+    return undefined
+  }
+  return findComment(comments.value)?.meta.createdBy.username || ''
+}
+
+/* ====== Mutations ====== */
+
+// postReply
+const { mutate: mutatePostReply } = useMutation(gql`
+  mutation ($replyTo: String!, $text: String!) {
+    postReply(para: { replyTo: $replyTo, text: $text, filter: false }) 
+  }
+`)
+
+async function handleReplySubmit() {
+  if (!replyText.value.trim())
+    return
+  isReplySubmitting.value = true
+  const ok = await mutatePostReply({
+    replyTo: replyingTo.value!,
+    text: replyText.value.trim(),
+  }).then(() => true).catch((e) => {
+    useToast().error(`回复失败：${e}`)
+    return false
+  })
+  isReplySubmitting.value = false
+  if (ok) {
+    useToast().success('回复成功')
+    cancelReply()
+    refresh()
+  }
+}
+
+// editComment
+const { mutate: mutateEditComment } = useMutation(gql`
+  mutation ($cid: String!, $text: String!) {
+    editComment(para: { cid: $cid, text: $text, filter: false })
+  }
+`)
+
+async function handleEditSubmit(commentId: string, content: string) {
+  const ok = await mutateEditComment({ cid: commentId, text: content }).then(() => true).catch((e) => {
+    useToast().error(`编辑失败：${e}`)
+    return false
+  })
+  if (ok) {
+    useToast().success('评论已编辑')
+    refresh()
+  }
+}
+
+// delComment
+const { mutate: mutateDelComment } = useMutation(gql`
+  mutation ($cid: String!) {
+    delComment(cid: $cid)
+  }
+`)
+
+const showDeleteDialog = ref(false)
+const deleteTargetId = ref<string | null>(null)
+
+function openDeleteDialog(commentId: string) {
+  deleteTargetId.value = commentId
+  showDeleteDialog.value = true
+}
+
+async function confirmDelete() {
+  if (!deleteTargetId.value)
+    return
+  const ok = await mutateDelComment({ cid: deleteTargetId.value }).then(() => true).catch((e) => {
+    useToast().error(`删除失败：${e}`)
+    return false
+  })
+  showDeleteDialog.value = false
+  deleteTargetId.value = null
+  if (ok) {
+    useToast().success('评论已删除')
+    refresh()
+  }
+}
+
+// hideComment
+const { mutate: mutateHideComment } = useMutation(gql`
+  mutation ($cid: String!) {
+    hideComment(cid: $cid)
+  }
+`)
+
+async function handleToggleHide(commentId: string) {
+  const comment = findCommentById(commentId)
+  const ok = await mutateHideComment({ cid: commentId }).then(() => true).catch((e) => {
+    useToast().error(`操作失败：${e}`)
+    return false
+  })
+  if (ok) {
+    useToast().success(comment?.hidden ? '评论已取消隐藏' : '评论已隐藏')
+    refresh()
+  }
+}
+
+// pinComment
+const { mutate: mutatePinComment } = useMutation(gql`
+  mutation ($cid: String!, $pin: Boolean!) {
+    pinComment(cid: $cid, pin: $pin)
+  }
+`)
+
+async function handleTogglePin(commentId: string) {
+  const comment = findCommentById(commentId)
+  const ok = await mutatePinComment({ cid: commentId, pin: !comment?.pinned }).then(() => true).catch((e) => {
+    useToast().error(`操作失败：${e}`)
+    return false
+  })
+  if (ok) {
+    useToast().success(comment?.pinned ? '评论已取消置顶' : '评论已置顶')
+    refresh()
+  }
+}
+
+/* ====== Helpers ====== */
+function findCommentById(id: string): CommentItemType | undefined {
+  for (const c of comments.value) {
+    if (c.id === id)
+      return c
+    if (c.children) {
+      const found = c.children.find(child => child.id === id)
+      if (found)
+        return found
+    }
+  }
+  return undefined
+}
+
+function refresh() {
+  if (props.tid)
+    refetch({ tid: props.tid })
 }
 </script>
 
@@ -119,10 +295,30 @@ function setHidden(id: string, value: boolean) {
         <div v-for="item in comments" :key="item.id" class="py-3 space-y-2 md:py-6">
           <!-- Main comment -->
           <CommentItem
-            :hidden="getHidden(item.id)"
+            :hidden="getHidden(item.id, item.hidden)"
             :comment="item"
+            :current-user-id="currentUserId"
+            :is-admin="isAdmin"
             @update:hidden="value => setHidden(item.id, value)"
+            @reply="startReply"
+            @submit-edit="handleEditSubmit"
+            @delete="openDeleteDialog"
+            @toggle-hide="handleToggleHide"
+            @toggle-pin="handleTogglePin"
           />
+
+          <!-- Inline Reply Input -->
+          <div v-if="replyingTo === item.id" class="ml-10 md:ml-12">
+            <CommentInput
+              v-model="replyText"
+              :placeholder="`回复 @${getReplyUsername(item.id)}`"
+              :loading="isReplySubmitting"
+              :show-cancel="true"
+              :rows="3"
+              @submit="handleReplySubmit"
+              @cancel="cancelReply"
+            />
+          </div>
 
           <!-- Child comment -->
           <div v-if="item.children?.length" class="ml-10 md:ml-12 divide-y divide-purple-100">
@@ -134,9 +330,29 @@ function setHidden(id: string, value: boolean) {
               class="py-1 md:py-2"
               :comment="child"
               child
-              :hidden="getHidden(child.id)"
+              :hidden="getHidden(child.id, child.hidden)"
+              :current-user-id="currentUserId"
+              :is-admin="isAdmin"
               @update:hidden="value => setHidden(child.id, value)"
+              @reply="startReply"
+              @submit-edit="handleEditSubmit"
+              @delete="openDeleteDialog"
+              @toggle-hide="handleToggleHide"
+              @toggle-pin="handleTogglePin"
             />
+
+            <!-- Inline Reply Input (for child comments) -->
+            <div v-if="replyingTo && item.children?.some(c => c.id === replyingTo)" class="py-1 md:py-2">
+              <CommentInput
+                v-model="replyText"
+                :placeholder="`回复 @${getReplyUsername(replyingTo)}`"
+                :loading="isReplySubmitting"
+                :show-cancel="true"
+                :rows="3"
+                @submit="handleReplySubmit"
+                @cancel="cancelReply"
+              />
+            </div>
           </div>
 
           <!-- Child comment expanded button -->
@@ -162,5 +378,34 @@ function setHidden(id: string, value: boolean) {
         </div>
       </div>
     </div>
+
+    <!-- Delete Confirmation Dialog -->
+    <HDialog :open="showDeleteDialog" class="relative z-50" @close="() => { showDeleteDialog = false; deleteTargetId = null }">
+      <div class="fixed inset-0 bg-black/30" aria-hidden="true" />
+      <div class="fixed inset-0 flex items-center justify-center p-4">
+        <HDialogPanel class="max-w-sm w-full rounded-2xl bg-surfaceContainerLowest p-6 shadow-xl dark:bg-dark-surfaceContainer">
+          <HDialogTitle class="text-lg text-onSurface font-semibold dark:text-dark-onSurface">
+            删除评论
+          </HDialogTitle>
+          <p class="mt-2 text-sm text-onSurfaceVariant dark:text-dark-onSurfaceVariant">
+            确定要删除这条评论吗？此操作不可撤销。
+          </p>
+          <div class="mt-4 flex justify-end gap-2">
+            <button
+              class="btn-outline btn"
+              @click="() => { showDeleteDialog = false; deleteTargetId = null }"
+            >
+              取消
+            </button>
+            <button
+              class="bg-red-500 text-white btn hover:bg-red-600"
+              @click="confirmDelete"
+            >
+              删除
+            </button>
+          </div>
+        </HDialogPanel>
+      </div>
+    </HDialog>
   </div>
 </template>
