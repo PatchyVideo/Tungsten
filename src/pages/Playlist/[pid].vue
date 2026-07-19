@@ -21,8 +21,9 @@ const { result, fetchMore, loading, error } = useQuery<Query>(
           privateEdit
         }
         rating {
-          userRating
+          totalRating
           totalUser
+          userRating
         }
         commentThread {
           id

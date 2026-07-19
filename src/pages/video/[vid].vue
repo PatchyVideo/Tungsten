@@ -23,6 +23,11 @@ const { result, loading, refetch } = useQuery<Query>(gql`
           site
           coverImage
         }
+        rating {
+          totalRating
+          totalUser
+          userRating
+        }
         clearence
         tags {
           tagid
@@ -119,6 +124,7 @@ watch(loading, () => {
             v-if="result?.getVideo?.item?.repostType"
             :repost-type="result.getVideo.item.repostType"
           />
+          <Rank v-if="result?.getVideo?.rating" :rating="result.getVideo.rating" />
           <UserMeta
             v-if="result?.getVideo?.meta?.createdBy"
             :id="result.getVideo.meta.createdBy.id"

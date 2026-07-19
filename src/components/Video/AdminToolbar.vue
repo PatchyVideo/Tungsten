@@ -60,8 +60,8 @@ async function handleClearenceChange(option: ClearenceOption) {
 </script>
 
 <template>
-  <section class="border border-outlineVariant rounded-2xl bg-surfaceContainerLowest p-4 shadow-sm dark:border-dark-outlineVariant dark:bg-dark-surfaceContainer">
-    <h3 class="mb-3 text-base text-onSurface font-semibold dark:text-dark-onSurface">
+  <section class="border border-outlineVariant rounded-2xl bg-surfaceContainerLowest p-3 shadow-sm dark:border-dark-outlineVariant dark:bg-dark-surfaceContainer">
+    <h3 class="m-none text-base text-onSurface font-semibold dark:text-dark-onSurface">
       管理员工具
     </h3>
 
