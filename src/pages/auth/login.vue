@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { type ApiError, unwrap } from '@/apis/request'
-import { getAuthErrorMessage } from '@/apis/userAuthManager'
 
 const username = ref<string>('')
 const password = ref<string>('')
@@ -19,7 +18,7 @@ async function login() {
   loading.value = true
 
   const fail = (e: ApiError) => {
-    errMsg.value = getAuthErrorMessage(e)
+    errMsg.value = e.message
   }
 
   const session = await getSession().then(r => unwrap(r, fail))

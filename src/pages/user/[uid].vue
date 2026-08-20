@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
 import { type ApiError, unwrap } from '@/apis/request'
-import { getAuthErrorMessage } from '@/apis/userAuthManager'
 
 setSiteTitle('个人信息')
 
@@ -70,7 +69,7 @@ async function updateUsername(e: FocusEvent) {
   }
 
   const fail = (e: ApiError) => {
-    toast.error(getAuthErrorMessage(e))
+    toast.error(e.message)
   }
 
   const usernameExists = await checkUsername(username).then(r => unwrap(r, fail))
@@ -93,7 +92,7 @@ function updateDesc(e: FocusEvent) {
 
   NProgress.start()
   changeDesc(desc)
-    .then(r => unwrap(r, e => toast.error(getAuthErrorMessage(e))))
+    .then(r => unwrap(r, e => toast.error(e.message)))
     .then((data) => {
       if (data != null)
         refetch()
@@ -155,11 +154,11 @@ async function updatePassword() {
   NProgress.start()
 
   await changePassword(passwordform.oldPassword, passwordform.newPassword)
-    .then(r => unwrap(r, e => {
+    .then(r => unwrap(r, (e) => {
       passwordState.value = 1
-      passwordMsg.value[1] = getAuthErrorMessage(e)
+      passwordMsg.value[1] = e.message
     }))
-    .then(data => {
+    .then((data) => {
       if (data != null) {
         toast.success('密码已更新')
         passwordMsg.value[2] = '密码已更新'

@@ -1,3 +1,5 @@
+import { API_ERROR_MAP } from './errorCodes'
+
 // 成功响应，data 为任意类型
 interface SuccessResponse<T = unknown> {
   status: 'SUCCEED'
@@ -19,8 +21,13 @@ interface FailedResponse {
 type ApiResponse<T = unknown> = SuccessResponse<T> | FailedResponse
 
 // Result 模式类型
-export interface ApiError { message: string; reason?: string }
-export type ApiResult<T> = { ok: true; data: T } | { ok: false; error: ApiError }
+export interface ApiError { message: string, reason?: string }
+export type ApiResult<T> = { ok: true, data: T } | { ok: false, error: ApiError }
+
+/** 通过 reason 从错误码字典解析友好提示，未命中时返回 fallback */
+function resolveErrorMessage(reason: string | undefined, fallback: string): string {
+  return reason ? API_ERROR_MAP[reason] ?? fallback : fallback
+}
 
 /**
  * 解包 ApiResult，失败时调用 onError 并返回 null
@@ -67,11 +74,11 @@ export async function request<T>(
   const reason = json.dataerr?.reason
 
   if (json.status === 'FAILED' && 'dataerr' in json) {
-    return { ok: false, error: { message: `失败：${reason || '未知原因'}`, reason } }
+    return { ok: false, error: { message: resolveErrorMessage(reason, `失败：${reason || '未知原因'}`), reason } }
   }
 
   if (json.status === 'ERROR') {
-    return { ok: false, error: { message: reason || '未知错误', reason } }
+    return { ok: false, error: { message: resolveErrorMessage(reason, reason || '未知错误'), reason } }
   }
 
   return { ok: false, error: { message: `请求错误：${json.status}` } }

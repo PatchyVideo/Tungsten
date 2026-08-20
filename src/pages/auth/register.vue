@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { type ApiError, unwrap } from '@/apis/request'
-import { getAuthErrorMessage } from '@/apis/userAuthManager'
 
 const username = ref<string>('')
 const password = ref<string>('')
@@ -20,7 +19,7 @@ async function register() {
 
   loading.value = true
   const fail = (e: ApiError) => {
-    errMsg.value = getAuthErrorMessage(e)
+    errMsg.value = e.message
   }
 
   // 检查用户名是否存在
