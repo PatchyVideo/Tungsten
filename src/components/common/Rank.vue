@@ -32,15 +32,21 @@ const stars = computed(() => {
       </div>
       <div class="flex flex-col items-center gap-0.5">
         <div class="flex items-center gap-0.5">
-          <template v-for="i in stars.full" :key="`full-${i}`">
-            <div class="i-mdi-star text-amber-400 dark:text-amber-300" />
-          </template>
-          <template v-for="i in stars.half" :key="`half-${i}`">
-            <div class="i-mdi-star-half-full text-amber-400 dark:text-amber-300" />
-          </template>
-          <template v-for="i in stars.empty" :key="`empty-${i}`">
-            <div class="i-mdi-star-outline text-gray-300 dark:text-gray-600" />
-          </template>
+          <div
+            v-for="i in stars.full"
+            :key="`full-${i}`"
+            class="i-mdi-star text-amber-400 dark:text-amber-300"
+          />
+          <div
+            v-for="i in stars.half"
+            :key="`half-${i}`"
+            class="i-mdi-star-half-full text-amber-400 dark:text-amber-300"
+          />
+          <div
+            v-for="i in stars.empty"
+            :key="`empty-${i}`"
+            class="i-mdi-star-outline text-gray-300 dark:text-gray-600"
+          />
         </div>
         <div class="text-xs text-onSurfaceVariant dark:text-dark-onSurfaceVariant">
           {{ rating.totalUser }}人评分{{ stars }}
