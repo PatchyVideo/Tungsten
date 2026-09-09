@@ -134,6 +134,7 @@ function updatePage(page: number) {
     </div>
     <div v-else class="space-y-5">
       <playlist-meta
+        :pid="pid"
         :meta="meta"
       />
 

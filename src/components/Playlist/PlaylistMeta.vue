@@ -1,6 +1,7 @@
 <!-- Meta messages of playlist in playlist detail page -->
 <script lang="ts" setup>
 defineProps<{
+  pid: string
   meta: {
     title: string
     private: boolean
@@ -47,7 +48,7 @@ defineProps<{
           <Tag v-for="tag in meta.tags" :key="tag.id" :tag="tag" class="my-0.5 mr-0.5" />
         </div>
 
-        <Rank :rating="meta.rating || null" />
+        <Rank :pid="pid" :rating="meta.rating || null" />
 
         <CommentBlock :text="meta.desc" size="sm" class="order-first md:order-none" />
       </div>

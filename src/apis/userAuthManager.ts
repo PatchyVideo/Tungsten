@@ -39,3 +39,11 @@ export function changePassword(old_pass: string, new_pass: string) {
 export function userLogout() {
   return request('/logout.do')
 }
+
+export function rateVideo(vid: string, stars: number) {
+  return request<object>('/rating/video.do', { vid, stars })
+}
+
+export function ratePlaylist(pid: string, stars: number) {
+  return request<object>('/rating/playlist.do', { pid, stars })
+}
