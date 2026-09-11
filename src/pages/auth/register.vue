@@ -150,7 +150,7 @@ meta:
   </div>
 
   <div class="flex justify-center text-sm text-purple-600 -mt-2 dark:text-purple-300">
-    <RouterLink to="/login">
+    <RouterLink to="/auth/login">
       已有账号？去登录
     </RouterLink>
   </div>

@@ -43,8 +43,16 @@ declare module 'vue-router/auto-routes' {
       '/auth',
       Record<never, never>,
       Record<never, never>,
+      | '/auth/forgot-password'
       | '/auth/login'
       | '/auth/register'
+    >,
+    '/auth/forgot-password': RouteRecordInfo<
+      '/auth/forgot-password',
+      '/auth/forgot-password',
+      Record<never, never>,
+      Record<never, never>,
+      | never
     >,
     '/auth/login': RouteRecordInfo<
       '/auth/login',
@@ -155,10 +163,19 @@ declare module 'vue-router/auto-routes' {
     'src/pages/auth.vue': {
       routes:
         | '/auth'
+        | '/auth/forgot-password'
         | '/auth/login'
         | '/auth/register'
       views:
         | 'default'
+      pathParamNames:
+        | never
+    }
+    'src/pages/auth/forgot-password.vue': {
+      routes:
+        | '/auth/forgot-password'
+      views:
+        | never
       pathParamNames:
         | never
     }

@@ -107,11 +107,11 @@ function validate() {
   </div>
 
   <div class="flex justify-center gap-2 text-sm text-purple-600 -mt-2 dark:text-purple-300">
-    <RouterLink to="/">
+    <RouterLink to="/auth/forgot-password">
       忘记密码
     </RouterLink>
     |
-    <RouterLink to="/register">
+    <RouterLink to="/auth/register">
       注册
     </RouterLink>
   </div>

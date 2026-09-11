@@ -47,3 +47,7 @@ export function rateVideo(vid: string, stars: number) {
 export function ratePlaylist(pid: string, stars: number) {
   return request<object>('/rating/playlist.do', { pid, stars })
 }
+
+export function requestResetPassword(email: string) {
+  return request<string>('/user/request_resetpass.do', { email, lang: 'CHS' })
+}
