@@ -2,7 +2,7 @@
 const config = computed(() => ({
   query: '',
   order: 'latest',
-  additionalConstraint: '',
+  additionalConstraint: 'NOT Auto_tagged NOT Deleted_Video',
   limit: 10,
 }))
 const { result, loading, error } = useQuery<Query>(gql`

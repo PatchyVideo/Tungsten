@@ -24,6 +24,7 @@ function getQueryVariables() {
     query: q.value,
     qtype: qtype.value,
     order: order.value,
+    hidePlaceholder: true,
   }
 }
 
@@ -39,13 +40,14 @@ watch(page, () => {
 
 // ================ video request ================
 const { load, loading, result } = useLazyQuery<Query>(gql`
-  query ($offset: Int!, $limit: Int!, $query: String!, $qtype: String, $order: String!) {
+  query ($offset: Int!, $limit: Int!, $query: String!, $qtype: String, $order: String!, $hidePlaceholder: Boolean!) {
     listVideo(para: {
       offset: $offset
       limit: $limit
       query: $query
       qtype: $qtype
       order: $order
+      hidePlaceholder: $hidePlaceholder
     }) {
       count
       pageCount

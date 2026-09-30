@@ -105,10 +105,29 @@ const tagSelect = ref(tagSwitch[0])
 // ================ onlyShowAutotagedVideos  ================
 const onlyShowAutotagedVideos = ref(false)
 
+// ================ tag exclusions ================
+const excludeAutotagedVideos = ref(false)
+const excludeDeletedVideos = ref(false)
+
+// 只看自动标注 与 排除自动标注 互斥，避免拼出自相矛盾的 q
+watch(onlyShowAutotagedVideos, (v) => {
+  if (v)
+    excludeAutotagedVideos.value = false
+})
+watch(excludeAutotagedVideos, (v) => {
+  if (v)
+    onlyShowAutotagedVideos.value = false
+})
+
 // ================ apply filter ================
 function applyFilters(r: boolean = true) {
   const ikey = includeKeywords.value.length ? ` ${includeKeywords.value.join(' ')}` : ''
-  const ekey = excludeKeywords.value.length ? ` NOT ${excludeKeywords.value.join(' NOT ')}` : ''
+  const excludedTags = [...excludeKeywords.value]
+  if (excludeAutotagedVideos.value)
+    excludedTags.push('Auto_tagged')
+  if (excludeDeletedVideos.value)
+    excludedTags.push('Deleted_Video')
+  const ekey = excludedTags.length ? ` NOT ${[...new Set(excludedTags)].join(' NOT ')}` : ''
   const siteStr = !site.value.includes('') ? ` ANY(site:${site.value.join(' site:')})` : ''
   const dateStr = date.value.length ? ` date:>=${date.value[0].toISOString().split('T')[0]} date:<=${date.value[1].toISOString().split('T')[0]}` : ''
   const tagStr = tagSelect.value.value !== '0' ? ` tags:${tagSelect.value.con}${tagNum.value}` : ''
@@ -135,6 +154,8 @@ function applyFilters(r: boolean = true) {
       tagNum: tagNum.value,
       tagSelect: tagSelect.value.value,
       o: onlyShowAutotagedVideos.value ? '1' : '0',
+      ea: excludeAutotagedVideos.value ? '1' : '0',
+      ed: excludeDeletedVideos.value ? '1' : '0',
     },
   })
 }
@@ -151,6 +172,8 @@ function init() {
   const routeTagSelect = Array.isArray(route.query.tagSelect) ? route.query.tagSelect[0] : route.query.tagSelect
   tagSelect.value = tagSwitch.find(item => item.value === String(routeTagSelect ?? '0')) || tagSwitch[0]
   onlyShowAutotagedVideos.value = (route.query.o as string) === '1'
+  excludeAutotagedVideos.value = (route.query.ea as string) === '1'
+  excludeDeletedVideos.value = (route.query.ed as string) === '1'
 
   applyFilters(false)
 }
@@ -165,6 +188,8 @@ function resetFilters() {
   tagNum.value = 0
   tagSelect.value = tagSwitch[0]
   onlyShowAutotagedVideos.value = false
+  excludeAutotagedVideos.value = false
+  excludeDeletedVideos.value = false
 }
 
 init()
@@ -275,6 +300,38 @@ init()
           >
             <span
               :class="onlyShowAutotagedVideos ? 'translate-x-6' : 'translate-x-1'"
+              class="inline-block h-4 w-4 transform rounded-full bg-white transition"
+            />
+          </HSwitch>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <div class="m-b-1 dark:text-gray-300">
+            排除自动标注的视频 (Auto_tagged):
+          </div>
+          <HSwitch
+            v-model="excludeAutotagedVideos"
+            :class="excludeAutotagedVideos ? 'bg-purple-600' : 'bg-gray-200 dark:bg-gray-700'"
+            class="relative h-6 w-11 inline-flex items-center rounded-full border-none p-0 transition"
+          >
+            <span
+              :class="excludeAutotagedVideos ? 'translate-x-6' : 'translate-x-1'"
+              class="inline-block h-4 w-4 transform rounded-full bg-white transition"
+            />
+          </HSwitch>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <div class="m-b-1 dark:text-gray-300">
+            排除已失效的视频 (Deleted_Video):
+          </div>
+          <HSwitch
+            v-model="excludeDeletedVideos"
+            :class="excludeDeletedVideos ? 'bg-purple-600' : 'bg-gray-200 dark:bg-gray-700'"
+            class="relative h-6 w-11 inline-flex items-center rounded-full border-none p-0 transition"
+          >
+            <span
+              :class="excludeDeletedVideos ? 'translate-x-6' : 'translate-x-1'"
               class="inline-block h-4 w-4 transform rounded-full bg-white transition"
             />
           </HSwitch>
