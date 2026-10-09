@@ -41,7 +41,8 @@ export function unwrap<T>(result: ApiResult<T>, onError: (error: ApiError) => vo
   return result.data
 }
 
-const API_BASE = 'https://patchyvideo.com/be'
+// In dev, /be is proxied by the Vite dev server (server.proxy in vite.config.ts)
+export const API_BASE = import.meta.env.DEV ? '/be' : 'https://patchyvideo.com/be'
 const HEADERS = { 'Content-Type': 'application/json' }
 
 /**

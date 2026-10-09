@@ -1,4 +1,5 @@
 import type { AutocompleteResponse } from './type/autocomplete'
+import { API_BASE } from './request'
 
 export function searchAutocomplete2(query: string) {
   return request<AutocompleteResponse>('/autocomplete/ql', { q: query })
@@ -17,7 +18,7 @@ export async function searchAutocomplete(query: string): Promise<AutocompleteRes
 
   controller = new AbortController()
 
-  const url = `https://patchyvideo.com/be/autocomplete/ql?q=${query}`
+  const url = `${API_BASE}/autocomplete/ql?q=${query}`
 
   const res = await fetch(url, { method: 'GET', signal: controller.signal })
   return await res.json()

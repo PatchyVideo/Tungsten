@@ -34,6 +34,15 @@ export default defineConfig(async ({ mode }) => {
       'import.meta.env.VITE_COMMIT_HASH': JSON.stringify(data.gitLatest.hash),
       'import.meta.env.VITE_APP_BUILDTIME': JSON.stringify(data.date.toISOString()),
     },
+    server: {
+      proxy: {
+        // 开发时把 /be 反代到后端，使请求同源化，绕开后端 OPTIONS 预检 405 导致的跨域失败
+        '/be': {
+          target: 'https://patchyvideo.com',
+          changeOrigin: true,
+        },
+      },
+    },
     plugins: [
       VueRouter({
         dts: 'src/route-map.d.ts',
