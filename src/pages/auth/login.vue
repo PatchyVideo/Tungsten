@@ -4,7 +4,6 @@ import { type ApiError, unwrap } from '@/apis/request'
 const username = ref<string>('')
 const password = ref<string>('')
 const errMsg = ref<string>('')
-/** login state */
 const loading = ref<boolean>(false)
 
 const router = useRouter()
@@ -24,13 +23,12 @@ async function login() {
     return null
   }
 
-  // login process
   try {
     const session = await getSession().then(r => unwrap(r, fail))
     if (session == null)
       return
 
-    // 保存令牌需要完整的 ApiResult（含响应头），因此这里不走 unwrap
+    // keep the full ApiResult so setToken can read the Authorization header
     const loginResult = await userLogin(username.value, password.value, session)
     if (!loginResult.ok) {
       fail(loginResult.error)
@@ -41,7 +39,7 @@ async function login() {
 
     await useUserStore().refetch()
 
-    // 直接访问登录页时没有可返回的历史记录，回退到首页
+    // no history when opened directly; fall back to home
     if (router.options.history.state.back)
       router.back()
     else
@@ -52,10 +50,7 @@ async function login() {
   }
 }
 
-/**
- * 校验用户名/邮箱与密码输入框（用户名/邮箱 2~32 字符，密码 6~64 字符，均不可为空）
- * @returns 校验通过返回 null，否则返回错误提示
- */
+/** @returns null if valid, otherwise an error message */
 function validate(): string | null {
   if (!username.value)
     return '用户名/邮箱不能为空'

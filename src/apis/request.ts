@@ -1,14 +1,12 @@
 import { clearAuthToken, getAuthToken } from './authToken'
 import { API_ERROR_MAP } from './errorCodes'
 
-// 成功响应，data 为任意类型
 interface SuccessResponse<T = unknown> {
   status: 'SUCCEED'
   data: T
   dataerr?: undefined
 }
 
-// 失败响应，包含错误信息
 interface FailedResponse {
   status: 'ERROR' | 'FAILED'
   data: string
@@ -18,27 +16,20 @@ interface FailedResponse {
   }
 }
 
-// 通用响应类型
 type ApiResponse<T = unknown> = SuccessResponse<T> | FailedResponse
 
-// Result 模式类型
 export interface ApiError { message: string, reason?: string }
-/**
- * 请求结果。
- */
+
 export type ApiResult<T> =
   | { ok: true, data: T, headers: Headers }
   | { ok: false, error: ApiError }
 
-/** 通过 reason 从错误码字典解析友好提示，未命中时返回 fallback */
+/** Resolve a friendly message by reason code; fall back if unknown */
 function resolveErrorMessage(reason: string | undefined, fallback: string): string {
   return reason ? API_ERROR_MAP[reason] ?? fallback : fallback
 }
 
-/**
- * 解包 ApiResult，失败时调用 onError 并返回 null
- * @returns 成功时返回 data，失败时返回 null
- */
+/** Unwrap ApiResult; on failure call onError and return null */
 export function unwrap<T>(result: ApiResult<T>, onError: (error: ApiError) => void): T | null {
   if (!result.ok) {
     onError(result.error)
@@ -47,17 +38,11 @@ export function unwrap<T>(result: ApiResult<T>, onError: (error: ApiError) => vo
   return result.data
 }
 
-// In dev, /be is proxied by the Vite dev server (server.proxy in vite.config.ts)
+// /be is proxied by the Vite dev server in dev
 export const API_BASE = import.meta.env.DEV ? '/be' : 'https://patchyvideo.com/be'
 const HEADERS = { 'Content-Type': 'application/json' }
 
-/**
- * 发送 API 请求
- *
- * @param endpoint API 端点
- * @param payload 请求负载
- * @returns ApiResult 包装的响应数据
- */
+/** Send a POST request and normalize the response into ApiResult */
 export async function request<T>(
   endpoint: string,
   payload: any = {},
@@ -71,7 +56,7 @@ export async function request<T>(
     body: JSON.stringify(payload),
   })
 
-  // 401 属于传输层就能判定的「未认证」信号：令牌已失效，顺手清掉本地副本
+  // 401: token no longer valid; clear the local copy
   // todo 审查
   if (res.status === 401) {
     clearAuthToken()

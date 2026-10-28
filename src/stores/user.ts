@@ -27,9 +27,7 @@ export interface UserStore {
 export const useUserStore = defineStore('user', () => {
   const auth = ref<UserStore | null>(null)
   const isAdmin = computed(() => auth.value?.profile?.access_control_status === 'admin')
-  /**
-   * 保存后端在登录响应里下发的 JWT（响应头优先，响应体 `auth_token` 兜底）
-   */
+  /** Persist the JWT from a login response: Authorization header first, body auth_token as fallback */
   function setToken(result: ApiResult<LoginData>) {
     if (!result.ok)
       return
@@ -44,9 +42,6 @@ export const useUserStore = defineStore('user', () => {
     if (typeof auth_token === 'string')
       setAuthToken(auth_token)
   }
-  /**
-   * Refetch the user's data.
-   */
   async function refetch() {
     const result = await refetchProfile()
     if (result.ok)
@@ -60,7 +55,7 @@ export const useUserStore = defineStore('user', () => {
     sessionStorage.clear()
   }
 
-  // 仅在本地存有 JWT 时才拉取资料，避免未登录访客必然触发一次 401
+  // skip refetch when logged out to avoid a guaranteed 401
   if (getAuthToken())
     refetch()
 

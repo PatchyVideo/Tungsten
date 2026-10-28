@@ -6,11 +6,8 @@ export function getSession() {
 }
 
 /**
- * 登录
- *
- * 后端会在响应头（`Authorization`）和响应体（`data.auth_token`）两条通道上
- * 下发同一个 JWT，因此这里返回完整的 `ApiResult`（含响应头），
- * 由调用方交给 `useUserStore().setToken()` 保存。
+ * Log in. The JWT is issued via both the `Authorization` header and
+ * `data.auth_token`; callers persist it with `setToken()`.
  */
 export function userLogin(username: string, password: string, session: string) {
   return request<LoginData>('/login.do', { username, password, session })
