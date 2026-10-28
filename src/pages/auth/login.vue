@@ -24,14 +24,20 @@ async function login() {
     return null
   }
 
+  // login process
   try {
     const session = await getSession().then(r => unwrap(r, fail))
     if (session == null)
       return
 
-    const login = await userLogin(username.value, password.value, session).then(r => unwrap(r, fail))
-    if (login == null)
+    // 保存令牌需要完整的 ApiResult（含响应头），因此这里不走 unwrap
+    const loginResult = await userLogin(username.value, password.value, session)
+    if (!loginResult.ok) {
+      fail(loginResult.error)
       return
+    }
+
+    useUserStore().setToken(loginResult)
 
     await useUserStore().refetch()
 

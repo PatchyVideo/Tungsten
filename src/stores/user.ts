@@ -1,4 +1,7 @@
+import type { ApiResult } from '@/apis/request'
+import type { LoginData } from '@/apis/type/user'
 import { acceptHMRUpdate, defineStore } from 'pinia'
+import { clearAuthToken, getAuthToken, setAuthToken } from '@/apis/authToken'
 
 export interface UserStore {
   profile: {
@@ -25,6 +28,23 @@ export const useUserStore = defineStore('user', () => {
   const auth = ref<UserStore | null>(null)
   const isAdmin = computed(() => auth.value?.profile?.access_control_status === 'admin')
   /**
+   * 保存后端在登录响应里下发的 JWT（响应头优先，响应体 `auth_token` 兜底）
+   */
+  function setToken(result: ApiResult<LoginData>) {
+    if (!result.ok)
+      return
+
+    const fromHeader = result.headers.get('Authorization')
+    if (fromHeader) {
+      setAuthToken(fromHeader)
+      return
+    }
+
+    const { auth_token } = result.data as { auth_token?: unknown }
+    if (typeof auth_token === 'string')
+      setAuthToken(auth_token)
+  }
+  /**
    * Refetch the user's data.
    */
   async function refetch() {
@@ -48,6 +68,7 @@ export const useUserStore = defineStore('user', () => {
     auth,
     isAdmin,
     refetch,
+    setToken,
     logout,
   }
 })
