@@ -1,4 +1,4 @@
-import { clearAuthToken, getAuthToken } from './authToken'
+import { getAuthToken } from './authToken'
 import { API_ERROR_MAP } from './errorCodes'
 
 interface SuccessResponse<T = unknown> {
@@ -56,10 +56,8 @@ export async function request<T>(
     body: JSON.stringify(payload),
   })
 
-  // 401: token no longer valid; clear the local copy
-  // todo 审查
+  // 401: friendlier message than the generic !res.ok branch below
   if (res.status === 401) {
-    clearAuthToken()
     return { ok: false, error: { message: API_ERROR_MAP.UNAUTHORISED_OPERATION, reason: 'UNAUTHORISED_OPERATION' } }
   }
 
