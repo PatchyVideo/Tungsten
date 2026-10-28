@@ -35,11 +35,14 @@ export const useUserStore = defineStore('user', () => {
 
   function logout() {
     userLogout()
+    clearAuthToken()
     auth.value = null
     sessionStorage.clear()
   }
 
-  refetch()
+  // 仅在本地存有 JWT 时才拉取资料，避免未登录访客必然触发一次 401
+  if (getAuthToken())
+    refetch()
 
   return {
     auth,

@@ -1,11 +1,47 @@
+import type { ApiResult } from './request'
+import type { LoginData } from './type/user'
 import type { UserStore } from '@/stores/user'
+import { setAuthToken } from './authToken'
+
+/**
+ * 从登录响应中提取后端下发的 JWT
+ *
+ * 后端在两条通道上同时下发同一个令牌，这里按「响应头优先、响应体兜底」读取：
+ * - 响应头 `Authorization`：需要后端 CORS 配置 `access-control-expose-headers`
+ *   暴露该头，跨域时才读得到
+ * - 响应体 `data.auth_token`：不受 CORS 配置影响，作为独立兜底通道
+ *
+ * @returns 成功提取到令牌时返回（可能带 `Bearer ` 前缀），否则返回 null
+ */
+function extractIssuedToken(result: ApiResult<LoginData>): string | null {
+  if (!result.ok)
+    return null
+
+  const fromHeader = result.headers.get('Authorization')
+  if (fromHeader)
+    return fromHeader
+
+  const { auth_token } = result.data as { auth_token?: unknown }
+  return typeof auth_token === 'string' ? auth_token : null
+}
 
 export function getSession() {
   return request<string>('/auth/get_session.do', { type: 'LOGIN' })
 }
 
-export function userLogin(username: string, password: string, session: string) {
-  return request('/login.do', { username, password, session })
+/**
+ * 登录，并在成功后保存后端下发的 JWT
+ *
+ * 「保存令牌」是登录接口自己的契约，因此写在这里，而不是塞进通用的 `request()`。
+ */
+export async function userLogin(username: string, password: string, session: string) {
+  const result = await request<LoginData>('/login.do', { username, password, session })
+
+  const token = extractIssuedToken(result)
+  if (token)
+    setAuthToken(token)
+
+  return result
 }
 
 export function refetchProfile() {
