@@ -37,7 +37,7 @@ const auth = computed(() => result.value?.getUser)
 
 // 格式化日期的计算属性
 const formattedDate = computed(() => {
-  if (!auth.value?.meta.createdAt)
+  if (!auth.value?.meta?.createdAt)
     return 'N/A'
   return new Intl.DateTimeFormat('zh-CN', {
     year: 'numeric',

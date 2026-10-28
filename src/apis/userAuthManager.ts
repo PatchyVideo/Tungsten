@@ -1,11 +1,16 @@
+import type { LoginData } from './type/user'
 import type { UserStore } from '@/stores/user'
 
 export function getSession() {
   return request<string>('/auth/get_session.do', { type: 'LOGIN' })
 }
 
+/**
+ * Log in. The JWT is issued via both the `Authorization` header and
+ * `data.auth_token`; callers persist it with `setToken()`.
+ */
 export function userLogin(username: string, password: string, session: string) {
-  return request('/login.do', { username, password, session })
+  return request<LoginData>('/login.do', { username, password, session })
 }
 
 export function refetchProfile() {

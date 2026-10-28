@@ -9,49 +9,62 @@ const loading = ref<boolean>(false)
 const router = useRouter()
 
 async function login() {
-  if (!validate())
+  if (loading.value)
     return
 
-  if (loading.value)
+  errMsg.value = validate() ?? ''
+  if (errMsg.value)
     return
 
   loading.value = true
 
   const fail = (e: ApiError) => {
     errMsg.value = e.message
+    return null
   }
 
-  const session = await getSession().then(r => unwrap(r, fail))
-  if (session == null)
-    return loading.value = false
+  try {
+    const session = await getSession().then(r => unwrap(r, fail))
+    if (session == null)
+      return
 
-  const login = await userLogin(username.value, password.value, session).then(r => unwrap(r, fail))
-  if (login == null)
-    return loading.value = false
+    // keep the full ApiResult so setToken can read the Authorization header
+    const loginResult = await userLogin(username.value, password.value, session)
+    if (!loginResult.ok) {
+      fail(loginResult.error)
+      return
+    }
 
-  await useUserStore().refetch()
-  router.back()
-  loading.value = false
+    useUserStore().setToken(loginResult)
+
+    await useUserStore().refetch()
+
+    // no history when opened directly; fall back to home
+    if (router.options.history.state.back)
+      router.back()
+    else
+      router.push('/home')
+  }
+  finally {
+    loading.value = false
+  }
 }
 
-// 验证用户名/邮箱输入框规则（字符在2~20之间） 验证密码输入框规则（字符在6~20之间） 验证不为空
-function validate() {
-  if (!username.value) {
-    errMsg.value = '用户名/邮箱不能为空'
-  }
-  else if (username.value.length < 2 || username.value.length > 32) {
-    errMsg.value = '用户名/邮箱长度在2~32之间'
-  }
-  else if (!password.value) {
-    errMsg.value = '密码不能为空'
-  }
-  else if (password.value.length < 6 || password.value.length > 64) {
-    errMsg.value = '密码长度在6~64之间'
-  }
-  else {
-    errMsg.value = ''
-    return true
-  }
+/** @returns null if valid, otherwise an error message */
+function validate(): string | null {
+  if (!username.value)
+    return '用户名/邮箱不能为空'
+  if (username.value.length < 2 || username.value.length > 32)
+    return '用户名/邮箱长度在2~32之间'
+  if (!password.value)
+    return '密码不能为空'
+  if (password.value.length < 6 || password.value.length > 64)
+    return '密码长度在6~64之间'
+  return null
+}
+
+function onBlur() {
+  errMsg.value = validate() ?? ''
 }
 </script>
 
@@ -79,7 +92,7 @@ function validate() {
       type="text"
       placeholder="用户名/邮箱"
       label="用户名"
-      @blur="validate"
+      @blur="onBlur"
     >
     <input
       v-model="password"
@@ -88,7 +101,7 @@ function validate() {
       type="password"
       placeholder="密码"
       label="密码"
-      @blur="validate"
+      @blur="onBlur"
     >
 
     <button class="w-full rounded-md border-none bg-purple-500 py-2 text-xl text-white dark:bg-purple-600 disabled:bg-purple-300 hover:bg-purple-600 focus:outline-none dark:hover:bg-purple-700 disabled:dark:bg-purple-400 disabled:hover:bg-purple-300 disabled:dark:hover:bg-purple-400">

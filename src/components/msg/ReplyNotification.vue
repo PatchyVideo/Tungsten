@@ -7,7 +7,8 @@ const router = useRouter()
 
 function handleClick() {
   const { repliedType, repliedObj } = props.note
-  if (!repliedObj) return
+  if (!repliedObj)
+    return
 
   switch (repliedType) {
     case 'video':
@@ -26,7 +27,7 @@ function handleClick() {
 <template>
   <div
     :class="note.read ? 'bg-gray-100 dark:bg-dark-300' : ''"
-    class="box-border w-full flex cursor-pointer gap-2 rounded bg-gray-50 p-x-4 p-y-2 transition-colors hover:bg-gray-200 dark:bg-dark-100 dark:hover:bg-dark-200"
+    class="box-border w-full flex cursor-pointer gap-2 rounded bg-gray-50 p-x-4 p-y-2 transition-colors dark:bg-dark-100 hover:bg-gray-200 dark:hover:bg-dark-200"
     @click="handleClick"
   >
     <Avatar :image="note.repliedBy.image" class="h-12 w-12 rounded-full" />

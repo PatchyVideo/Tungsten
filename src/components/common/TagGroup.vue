@@ -58,8 +58,8 @@ const groupedTags = computed(() => {
   <div v-if="props.layout === 'block'" class="space-y-2">
     <div v-for="group in groupedTags" :key="group.category" class="flex items-start gap-2">
       <span
-        class="mt-0.5 inline-block shrink-0 rounded px-2 py-0.5 text-xs font-medium"
-        :class="[group.color, 'text-onSurface dark:text-dark-onSurface']"
+        class="mt-0.5 inline-block shrink-0 rounded px-2 py-0.5 text-xs text-onSurface font-medium dark:text-dark-onSurface"
+        :class="[group.color]"
       >
         {{ group.label }}
       </span>

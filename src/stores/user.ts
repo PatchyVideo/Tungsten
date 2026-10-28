@@ -1,4 +1,7 @@
+import type { ApiResult } from '@/apis/request'
+import type { LoginData } from '@/apis/type/user'
 import { acceptHMRUpdate, defineStore } from 'pinia'
+import { clearAuthToken, getAuthToken, setAuthToken } from '@/apis/authToken'
 
 export interface UserStore {
   profile: {
@@ -24,9 +27,21 @@ export interface UserStore {
 export const useUserStore = defineStore('user', () => {
   const auth = ref<UserStore | null>(null)
   const isAdmin = computed(() => auth.value?.profile?.access_control_status === 'admin')
-  /**
-   * Refetch the user's data.
-   */
+  /** Persist the JWT from a login response: Authorization header first, body auth_token as fallback */
+  function setToken(result: ApiResult<LoginData>) {
+    if (!result.ok)
+      return
+
+    const fromHeader = result.headers.get('Authorization')
+    if (fromHeader) {
+      setAuthToken(fromHeader)
+      return
+    }
+
+    const { auth_token } = result.data as { auth_token?: unknown }
+    if (typeof auth_token === 'string')
+      setAuthToken(auth_token)
+  }
   async function refetch() {
     const result = await refetchProfile()
     if (result.ok)
@@ -35,16 +50,20 @@ export const useUserStore = defineStore('user', () => {
 
   function logout() {
     userLogout()
+    clearAuthToken()
     auth.value = null
     sessionStorage.clear()
   }
 
-  refetch()
+  // skip refetch when logged out to avoid a guaranteed 401
+  if (getAuthToken())
+    refetch()
 
   return {
     auth,
     isAdmin,
     refetch,
+    setToken,
     logout,
   }
 })
