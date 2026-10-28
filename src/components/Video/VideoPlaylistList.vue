@@ -38,7 +38,7 @@ defineProps<{
             <span class="truncate text-sm font-medium">{{ item.meta.title }}</span>
           </div>
           <div class="text-xs text-onSurfaceVariant dark:text-dark-onSurfaceVariant">
-            第 {{ item.rank + 1 }} / {{ item.meta.count }} 个
+            第 {{ item.rank != null ? item.rank + 1 : '?' }} / {{ item.meta.count }} 个
           </div>
         </div>
       </RouterLink>
