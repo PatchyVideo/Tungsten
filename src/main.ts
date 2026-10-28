@@ -3,7 +3,7 @@ import { DefaultApolloClient } from '@vue/apollo-composable'
 import VueDatePicker from '@vuepic/vue-datepicker'
 import { createPinia } from 'pinia'
 import { createApp } from 'vue'
-/* eslint-disable import/no-duplicates */
+
 import { createRouter, createWebHistory } from 'vue-router'
 import { routes } from 'vue-router/auto-routes'
 import Toast from 'vue-toastification'

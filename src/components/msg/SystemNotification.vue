@@ -14,7 +14,7 @@ function handleClick() {
 
 <template>
   <div
-    class="cursor-pointer border-l-4 border-blue-500 bg-blue-50 p-4 transition-colors hover:bg-blue-100 dark:bg-dark-100 dark:hover:bg-dark-200"
+    class="cursor-pointer border-l-4 border-blue-500 bg-blue-50 p-4 transition-colors dark:bg-dark-100 hover:bg-blue-100 dark:hover:bg-dark-200"
     @click="handleClick"
   >
     <div class="font-bold">

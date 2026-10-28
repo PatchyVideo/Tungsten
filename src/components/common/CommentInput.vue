@@ -113,7 +113,7 @@ function insertEmoji(emoji: string) {
         <button
           v-if="showCancel"
           type="button"
-          class="btn btn-outline"
+          class="btn-outline btn"
           @click="emit('cancel')"
         >
           取消
